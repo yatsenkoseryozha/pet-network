@@ -1,0 +1,119 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 370px; height: 100vh;
+    margin-right: 15px;
+    background-color: #9FDEE2;
+}
+
+.leftArrow {
+    width: auto; height: 30px;
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+.searchContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%; height: 90px;
+    padding: 15px; margin-bottom: 15px;
+    border-bottom: 15px solid #FFFFFF;
+}
+
+.dialogsContainer {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 15px;
+    overflow: auto;
+}
+
+.receiver {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lastMessage {
+    width: 100%; height: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.from {
+    font-weight: bold;
+}
+
+.settingsHeader {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%; height: 90px;
+    padding: 15px; margin-bottom: 15px;
+    border-bottom: 15px solid #FFFFFF;
+    font-size: 24px;
+}
+
+.settingsHeader .leftArrow {
+    position: absolute;
+    left: 15px;
+}
+
+.settingsContainer {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%; height: auto;
+    padding: 0 15px;
+}
+
+.settingsButton {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%; height: 60px;
+    margin-bottom: 10px; padding: 0 10px;
+    background-color: #ffffff;
+    font-size: 24px;
+    cursor: pointer;
+    transition: 0.2s;
+} .logoutButton {
+    margin-bottom: 0;
+}
+
+.settingsInput {
+    box-sizing: border-box;
+    width: 100%; height: 60px;
+    border: none;
+    margin-bottom: 10px; padding-left: 10px;
+    font-size: 24px;
+} .settingsInput:focus {
+    outline: none;
+}
+
+.navContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%; height: 90px;
+    border-top: 15px solid #FFFFFF;
+    padding: 15px; margin-top: 15px;
+}
+
+.navButton {
+    width: 45px; height: 45px;
+    margin-right: 90px;
+    cursor: pointer;
+} .navButton:last-child {
+    margin-right: 0;
+} .navButton img {
+    width: 100%; height: 100%;
+}

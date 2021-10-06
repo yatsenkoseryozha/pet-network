@@ -1,0 +1,57 @@
+.container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 1170px; height: 100%;
+    margin: 0 auto;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 373px; height: auto;
+    font-size: 28px;
+}
+
+.form input {
+    box-sizing: border-box;
+    width: 100%; height: 60px;
+    border: none;
+    margin-bottom: 15px;
+    padding: 0 10px;
+    background-color: #C4C4C4;
+    font-size: 28px;
+    transition: 0.2s;
+} .form input:focus {
+    background-color: #DADADA;
+    outline: none;
+} 
+
+.form .buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%; height: 60px;
+}
+
+.form .authLink {
+    text-decoration: none;
+    color: #000000;
+} .authLink:hover {
+    text-decoration: underline #000000;
+} .authLink:focus {
+    outline: none;
+    text-decoration: underline #000000;
+}
+
+.form .authButton {
+    width: auto; height: 60px;
+    padding: 0 30px; margin-bottom: 0;
+    cursor: pointer;
+} .form .authButton:hover {
+    background-color: #DADADA;
+} .form .authButton:active {
+    background-color: #C4C4C4;
+}
