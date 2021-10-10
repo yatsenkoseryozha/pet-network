@@ -1,10 +1,19 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import style from '../Sidebar.module.css'
 import leftArrow from '../images/leftArrow.svg'
+import { SETTINGS } from '../Sidebar'
+
+type PropsType = {
+    currentPassword: string
+    newPassword: string
+    updateCurrentPassword: (currentPassword: string) => void
+    updateNewPassword: (newPassword: string) => void
+    changePassword: (currentPassword: string, newPassword: string) => void
+    logout: () => void
+}
 
 
-const Settings = (props) => {
-    const SETTINGS = 'SETTINGS'
+const Settings: React.FC<PropsType> = ({ currentPassword, newPassword, ...props }) => {
     const PASSWORD_CHANGE = 'PASSWORD_CHANGE'
 
     const [currentTab, setCurrentTab] = useState(SETTINGS)
@@ -36,11 +45,11 @@ const Settings = (props) => {
                 {
                     currentTab === PASSWORD_CHANGE &&
                         <div className={style.setting}>
-                            <input type='password' placeholder='Текущий пароль' className={style.settingsInput} value={props.currentPassword} 
+                            <input type='password' placeholder='Текущий пароль' className={style.settingsInput} value={currentPassword} 
                                 onChange={ e => props.updateCurrentPassword(e.currentTarget.value) } />
-                            <input type='password' placeholder='Новый пароль' className={style.settingsInput} value={props.newPassword} 
+                            <input type='password' placeholder='Новый пароль' className={style.settingsInput} value={newPassword} 
                                 onChange={ e => props.updateNewPassword(e.currentTarget.value) } />
-                            <div className={style.settingsButton} onClick={ () => props.changePassword(props.currentPassword, props.newPassword) } >Сменить пароль</div>
+                            <div className={style.settingsButton} onClick={ () => props.changePassword(currentPassword, newPassword) } >Сменить пароль</div>
                         </div>
                 }
             </div>

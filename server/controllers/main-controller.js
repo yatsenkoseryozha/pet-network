@@ -15,7 +15,20 @@ class mainController {
                     $in: [ decodedToken.id ]
                 }
             })
-            return res.status(200).json({ conversations })
+            let clearConversations = []
+            conversations.map(conversation => {
+                let clearConversation = {
+                    id: conversation._id,
+                    members: conversation.members,
+                    lastMessage: {
+                        id: conversation.lastMessage._id,
+                        sender: conversation.lastMessage.sender,
+                        text: conversation.lastMessage.text
+                    }
+                }
+                clearConversations.push(clearConversation)
+            })
+            return res.status(200).json({ conversations: clearConversations })
         } catch (err) {
             console.log(err)
         }
@@ -26,7 +39,15 @@ class mainController {
             if (!username) 
                 return res.status(200).json({ users: [] })
             const users = await User.find({username: { $regex : username } })
-            return res.status(200).json({ users })
+            let clearUsers = []
+            users.map(user => {
+                let clearUser = {
+                    id: user._id,
+                    username: user.username
+                }
+                clearUsers.push(clearUser)
+            })
+            return res.status(200).json({ users: clearUsers })
         } catch (err) {
             console.log(err)
         }
@@ -68,7 +89,16 @@ class mainController {
             }
             const conversation = req.headers.conversation
             const messages = await Message.find({ conversation })
-            return res.status(200).json({ messages })
+            let clearMessages = []
+            messages.map(message => {
+                let clearMessage = {
+                    id: message._id,
+                    sender: message.sender,
+                    text: message.text
+                }
+                clearMessages.push(clearMessage)
+            })
+            return res.status(200).json({ messages: clearMessages })
         } catch (err) {
             console.log(err)
         }
@@ -82,16 +112,7 @@ class mainController {
             let { conversation, text } = req.body
             if (!conversation.id) {
                 const newConversation = new Conversation({
-                    members: [
-                        {
-                            id: decodedToken.id,
-                            username: decodedToken.username
-                        }, 
-                        {
-                            id: conversation.receiver.id,
-                            username: conversation.receiver.username
-                        }
-                    ]
+                    members: conversation.members
                 })
                 await newConversation.save()
                 conversation = newConversation

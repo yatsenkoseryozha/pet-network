@@ -50,7 +50,11 @@ class authController {
                 return res.status(401).json({message: "Пользователь не авторизован!"})
             const decodedToken = jwt.verify(token, process.env.SECRET)
             const user = await User.findOne({ _id: decodedToken.id })
-            return res.json({id: user.id, username: user.username, isActivated: user.isActivated})
+            let clearUser = {
+                id: user.id,
+                username: user.username
+            }
+            return res.json({user: clearUser})
         } catch (e) {
             console.log(e)
             return res.status(401).json({message: "Ошибка аутентификации. Необходима повторная авторизация!"})
