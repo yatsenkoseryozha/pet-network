@@ -1,34 +1,26 @@
 import React from 'react'
+import { Field, InjectedFormProps, reduxForm } from 'redux-form'
+import { RegistrationFormDataType } from '../Auth'
 import style from '../Auth.module.css'
 
 type PropsType = {
-    username: string
-    email: string
+    isFetching: boolean
     changeCurrentForm: () => void
-    updateUsername: (value: string) => void
-    updateEmail: (value: string) => void
-    registration: (username: string, email: string) => void
 }
 
-const RegistrationForm: React.FC<PropsType> = ({ username, email, ...props }) => {
+const RegistrationForm: React.FC<InjectedFormProps<RegistrationFormDataType, PropsType> & PropsType> = ({ isFetching, ...props }) => {
     return (
-        <div className={style.form}>
-            <input type='text' placeholder='Логин' value={username} 
-                onChange={ e => props.updateUsername(e.currentTarget.value) } />
-            <input type='text' placeholder='Почта' value={email} 
-                onChange={ e => props.updateEmail(e.currentTarget.value) } />
+        <form className={style.form} onSubmit={props.handleSubmit}>
+            <Field placeholder='Логин' name='username' component='input' />
+            <Field placeholder='Почта' name='email' component='input' />
             <div className={style.buttons}>
-                <div>
-                    <div className={style.authLink} onClick={props.changeCurrentForm}>Есть аккаунт?</div>
-                </div>
-                <input type='submit' value='Создать' className={style.authButton} 
-                    onClick={async () => {
-                        props.registration(username, email)
-                        props.changeCurrentForm()    
-                    }} />
+                <div className={style.authLink} onClick={props.changeCurrentForm}>Есть аккаунт?</div>
+                <button className={style.authButton} type="submit" disabled={isFetching ? true : false} >Войти</button>
             </div>
-        </div>
+        </form>
     )
 }
 
-export default RegistrationForm
+export default reduxForm<RegistrationFormDataType, PropsType>({
+    form: 'registration'
+})(RegistrationForm)

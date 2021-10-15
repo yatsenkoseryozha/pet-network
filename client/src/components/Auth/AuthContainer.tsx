@@ -1,20 +1,15 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import Auth from './Auth'
-import { updateUsername, updateEmail, updatePassword, login, registration } from '../../redux/reducers/AuthReducer'
+import { login, registration } from '../../redux/reducers/AuthReducer'
 import { AppStateType } from '../../redux/store'
 
 type MapStatePropsType = {
-    username: string
-    email: string
-    password: string
+    isFetching: boolean
     registrationMessage: string
 }
 
 type MapDispatchPropsType = {
-    updateUsername: (value: string) => void
-    updateEmail: (value: string) => void
-    updatePassword: (value: string) => void
     registration: (username: string, email: string) => void
     login: (username: string, password: string) => void
 }
@@ -29,13 +24,11 @@ class AuthContainer extends React.Component<PropsType> {
 
 const mapStateToProps = (state: AppStateType) => {
     return {
-        username: state.auth.username,
-        email: state.auth.email,
-        password: state.auth.password,
+        isFetching: state.auth.isFetching,
         registrationMessage: state.auth.registrationMessage
     }
 }
 
 export default connect<MapStatePropsType, MapDispatchPropsType, {}, AppStateType>(
-    mapStateToProps, {updateUsername, updateEmail, updatePassword, login, registration}
+    mapStateToProps, {login, registration}
 )(AuthContainer)

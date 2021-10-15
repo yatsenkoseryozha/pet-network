@@ -1,31 +1,27 @@
 import React from 'react'
+import { Field, InjectedFormProps, reduxForm } from 'redux-form'
+import { LoginFormDataType } from '../Auth'
 import style from '../Auth.module.css'
 
 type PropsType = {
-    username: string
-    password: string
+    isFetching: boolean
     changeCurrentForm: () => void
-    updateUsername: (value: string) => void
-    updatePassword: (value: string) => void
-    login: (username: string, password: string) => void
 }
 
-const LoginForm: React.FC<PropsType> = ({ username, password, ...props }) => {
+const LoginForm: React.FC<InjectedFormProps<LoginFormDataType, PropsType> & PropsType> = ({ isFetching, ...props }) => {
     return (
-        <div className={style.form}>
-            <input type='text' placeholder='Логин' value={username} 
-                onChange={ e => props.updateUsername(e.currentTarget.value) } />
-            <input type='password' placeholder='Пароль' value={password} 
-                onChange={ e => props.updatePassword(e.currentTarget.value) } />
+        <form className={style.form} onSubmit={props.handleSubmit}>
+            <Field placeholder='Логин' name='username' component='input' />
+            <Field placeholder='Пароль' name='password' type='password' component='input' />
             <div className={style.buttons}>
-                <div>
-                    <div className={style.authLink} onClick={props.changeCurrentForm}>Нет аккаунта?</div>
-                </div>
-                <input type='submit' value='Войти' className={style.authButton} 
-                    onClick={ () => props.login(username, password) } />
+                <div className={style.authLink} onClick={props.changeCurrentForm}>Нет аккаунта?</div>
+                <button className={style.authButton} type="submit" disabled={isFetching ? true : false} >Войти</button>
             </div>
-        </div>
+        </form>
     )
 }
 
-export default LoginForm
+export default reduxForm<LoginFormDataType, PropsType>({
+    form: 'login'
+})(LoginForm)
+  

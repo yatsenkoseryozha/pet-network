@@ -15,7 +15,7 @@ class MailService {
 
     async sendActivationMail(email, username, password) {
         await this.transporter.sendMail({
-            from: `"PET-NETWORK" <${process.env.SMPT_USER}>`,
+            from: `"PET-NETWORK" <${process.env.SMTP_USER}>`,
             to: email,
             subject: 'PET-NETWORK - Спасибо за регистрацию!',
             text: '',
@@ -33,7 +33,7 @@ class MailService {
 
     async changePasswordNotification(email) {
         await this.transporter.sendMail({
-            from: `"PET-NETWORK" <${process.env.SMPT_USER}>`,
+            from: `"PET-NETWORK" <${process.env.SMTP_USER}>`,
             to: email,
             subject: 'PET-NETWORK - Ваш пароль был изменен!',
             text: '',

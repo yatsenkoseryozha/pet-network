@@ -3,76 +3,47 @@ import { authAPI } from '../../api/authAPI'
 import { AppStateType } from '../store'
 import { UserType } from './Sidebar/DialogsReducer'
 
-const UPDATE_USERNAME = 'UPDATE-USERNAME'
-const UPDATE_EMAIL = 'UPDATE-EMAIL'
-const UPDATE_PASSWORD = 'UPDATE-PASSWORD'
-const SET_CURRENT_USER = 'SET-CURRENT-USER'
+const TOGGLE_IS_FETCHING = 'TOGGLE-IS-FETCHING'
 const UPDATE_REGISTRATION_MESSAGE = 'UPDATE-REGISTRATION-MESSAGE'
+const SET_CURRENT_USER = 'SET-CURRENT-USER'
 
 let initialState = {
-    username: '',
-    email: '',
-    password: '',
+    isFetching: false,
     registrationMessage: '',
-    currentUser: null as UserType | null,
+    currentUser: null as UserType | null
 }
 
 export type InitialStateType = typeof initialState
 
 const authReducer = (state = initialState, action: ActionsTypes): InitialStateType => {
     switch(action.type) {
-        case UPDATE_USERNAME:
+        case TOGGLE_IS_FETCHING:
             return {
                 ...state,
-                username: action.value
-            }
-        case UPDATE_EMAIL:
-            return {
-                ...state,
-                email: action.value
-            }
-        case UPDATE_PASSWORD:
-            return {
-                ...state,
-                password: action.value
+                isFetching: !state.isFetching
             }
         case UPDATE_REGISTRATION_MESSAGE:
             return {
                 ...state,
                 registrationMessage: action.value
             }
-        case SET_CURRENT_USER: {
+        case SET_CURRENT_USER:
             return {
                 ...state,
                 currentUser: action.user
             }
-        }
         default: return state
     }
 }
 
 export default authReducer
 
-type ActionsTypes = UpdateUsernameActionType | UpdateEmailActionType | UpdatePasswordActionType | 
-                    UpdateRegistrationMessageType | SetCurrentUserActionType
+type ActionsTypes = ToggleIsFetching | UpdateRegistrationMessageType | SetCurrentUserActionType
 
-type UpdateUsernameActionType = {
-    type: typeof UPDATE_USERNAME,
-    value: string
+type ToggleIsFetching = {
+    type: typeof TOGGLE_IS_FETCHING
 }
-export const updateUsername = (value: string): UpdateUsernameActionType => ({ type: UPDATE_USERNAME, value })
-
-type UpdateEmailActionType = {
-    type: typeof UPDATE_EMAIL,
-    value: string
-}
-export const updateEmail = (value: string): UpdateEmailActionType => ({ type: UPDATE_EMAIL, value })
-
-type UpdatePasswordActionType = {
-    type: typeof UPDATE_PASSWORD,
-    value: string
-}
-export const updatePassword = (value: string): UpdatePasswordActionType => ({ type: UPDATE_PASSWORD, value })
+export const toggleIsFetching = (): ToggleIsFetching => ({ type: TOGGLE_IS_FETCHING })
 
 type UpdateRegistrationMessageType = {
     type: typeof UPDATE_REGISTRATION_MESSAGE
@@ -92,21 +63,27 @@ type ThunkType = ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes>
 export const registration = (username: string, email: string): ThunkType => {
     return async (dispatch) => {
         try {
+            dispatch(toggleIsFetching())
             let data = await authAPI.registration(username, email)
             dispatch(updateRegistrationMessage(data.message))
+            dispatch(toggleIsFetching())
         } catch (error) {
             console.log(error)
+            dispatch(toggleIsFetching())
         }
     }
 }
 
 export const login = (username: string, password: string): ThunkType => {
-    return async () => {
+    return async (dispatch) => {
         try {
+            dispatch(toggleIsFetching())
             let data = await authAPI.login(username, password)
             localStorage.setItem('token', data.token)
+            dispatch(toggleIsFetching())
         } catch (error) {
             console.log(error)
+            dispatch(toggleIsFetching())
         }
     }
 }
