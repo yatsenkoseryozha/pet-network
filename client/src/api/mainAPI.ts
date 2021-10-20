@@ -1,11 +1,8 @@
 import axios from 'axios'
 import { CurrentDialogType } from '../redux/reducers/Sidebar/DialogsReducer'
 
-const mainInstance = axios.create({
-    baseURL: 'http://localhost:5000/',
-    headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-    }
+export const mainInstance = axios.create({
+    baseURL: 'http://localhost:5000/'
 })
 
 type SendMessageAPIType = {

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { mainInstance } from './mainAPI'
 import { UserType } from '../redux/reducers/Sidebar/DialogsReducer'
 
 const authInstace = axios.create({
@@ -31,6 +32,9 @@ export const authAPI = {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
             }
-        }).then(response => response.data)
+        }).then(response => {
+            mainInstance.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`
+            return response.data
+        })
     }
 }

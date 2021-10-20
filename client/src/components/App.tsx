@@ -14,7 +14,7 @@ const App: React.FC<PropsType> = ({ currentUser }) => {
         <div className={style.wrapper}>
             <BrowserRouter>
                 <Route path="/">
-                    {!currentUser ? <Redirect to='/auth' /> : <MainContainer />}
+                    {!currentUser ? (localStorage.getItem('token') ? null : <Redirect to='/auth' />) : <MainContainer />}
                 </Route>
                 <Route exact path="/auth">
                     {currentUser ? <Redirect to='/' /> : <AuthContainer />}

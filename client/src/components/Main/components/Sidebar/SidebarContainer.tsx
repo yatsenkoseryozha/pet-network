@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { getDialogs, setCurrentDialog, updateToSearch, getUsers, UserType, DialogType } from '../../../../redux/reducers/Sidebar/DialogsReducer'
 import { updateCurrentPassword, updateNewPassword, changePassword } from '../../../../redux/reducers/Sidebar/SettingsReducer'
+import { logout } from '../../../../redux/reducers/AuthReducer'
 import { AppStateType } from '../../../../redux/store'
 import Sidebar from './Sidebar'
 
@@ -22,6 +23,7 @@ type MapDispatchPropsType = {
     updateCurrentPassword: (value: string) => void
     updateNewPassword: (value: string) => void
     changePassword: (currentPassword: string, newPassword: string) => void
+    logout: () => void
 }
 
 type PropsType = MapStatePropsType & MapDispatchPropsType
@@ -30,14 +32,9 @@ class SidebarContainer extends React.Component<PropsType> {
     componentDidMount() {
         this.props.getDialogs()
     }
-    
-    logout = () => {
-        localStorage.removeItem('token')
-        window.location.reload()
-    }
 
     render() {
-        return <Sidebar {...this.props} logout={this.logout} />
+        return <Sidebar {...this.props} />
     }
 }
 
@@ -54,5 +51,5 @@ const mapStateToProps = (state: AppStateType) => {
 
 export default connect<MapStatePropsType, MapDispatchPropsType, {}, AppStateType>(
     mapStateToProps, { getDialogs, setCurrentDialog, updateToSearch, getUsers, 
-    updateCurrentPassword, updateNewPassword, changePassword }
+    updateCurrentPassword, updateNewPassword, changePassword, logout }
 )(SidebarContainer)

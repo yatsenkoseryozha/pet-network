@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import style from '../Sidebar.module.css'
 import leftArrow from '../images/leftArrow.svg'
 import { SETTINGS } from '../Sidebar'
+import { UserType } from '../../../../../redux/reducers/Sidebar/DialogsReducer'
 
 type PropsType = {
+    currentUser: UserType | null
     currentPassword: string
     newPassword: string
     updateCurrentPassword: (currentPassword: string) => void
@@ -13,7 +15,7 @@ type PropsType = {
 }
 
 
-const Settings: React.FC<PropsType> = ({ currentPassword, newPassword, ...props }) => {
+const Settings: React.FC<PropsType> = ({ currentUser, currentPassword, newPassword, ...props }) => {
     const PASSWORD_CHANGE = 'PASSWORD_CHANGE'
 
     const [currentTab, setCurrentTab] = useState(SETTINGS)
@@ -23,7 +25,7 @@ const Settings: React.FC<PropsType> = ({ currentPassword, newPassword, ...props 
             <div className={style.settingsHeader}>
                 {
                     currentTab === SETTINGS &&
-                        <div>Настройки</div>
+                        <div>{currentUser?.username}</div>
                 }
                 {
                     currentTab === PASSWORD_CHANGE &&

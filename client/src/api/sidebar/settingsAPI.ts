@@ -1,11 +1,4 @@
-import axios from 'axios'
-
-const mainInstance = axios.create({
-    baseURL: 'http://localhost:5000/',
-    headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-    }
-})
+import { mainInstance } from '../mainAPI'
 
 type ChangePasswordAPIType = {
     message: string

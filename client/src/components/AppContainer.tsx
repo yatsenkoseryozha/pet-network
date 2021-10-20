@@ -6,6 +6,7 @@ import { UserType } from '../redux/reducers/Sidebar/DialogsReducer'
 import { AppStateType } from '../redux/store'
 
 type MapStatePropsType = {
+    isFetching: boolean
     currentUser: UserType | null
 }
 
@@ -28,6 +29,7 @@ class AppContainer extends React.Component<PropsType> {
 
 const mapStateToProps = (state: AppStateType) => {
     return {
+        isFetching: state.auth.isFetching,
         currentUser: state.auth.currentUser
     }
 }

@@ -54,9 +54,9 @@ export const updateRegistrationMessage = (value: string): UpdateRegistrationMess
 
 type SetCurrentUserActionType = {
     type: typeof SET_CURRENT_USER,
-    user: UserType
+    user: UserType | null
 }
-export const setCurrentUser = (user: UserType): SetCurrentUserActionType => ({ type: SET_CURRENT_USER, user })
+export const setCurrentUser = (user: UserType | null): SetCurrentUserActionType => ({ type: SET_CURRENT_USER, user })
 
 type ThunkType = ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes>
 
@@ -81,6 +81,7 @@ export const login = (username: string, password: string): ThunkType => {
             let data = await authAPI.login(username, password)
             localStorage.setItem('token', data.token)
             dispatch(toggleIsFetching())
+            dispatch(auth())
         } catch (error) {
             console.log(error)
             dispatch(toggleIsFetching())
@@ -88,13 +89,24 @@ export const login = (username: string, password: string): ThunkType => {
     }
 }
 
+export const logout = (): ThunkType => {
+    return async (dispatch) => {
+        localStorage.removeItem('token')
+        dispatch(setCurrentUser(null))
+    }
+}
+
 export const auth = (): ThunkType => {
     return async (dispatch) => {
         try {
+            dispatch(toggleIsFetching())
             let data = await authAPI.auth()
+            dispatch(toggleIsFetching())
             dispatch(setCurrentUser(data.user))
         } catch (error) {
+            console.log(error)
             localStorage.removeItem('token')
+            dispatch(toggleIsFetching())
         }
     }
 }

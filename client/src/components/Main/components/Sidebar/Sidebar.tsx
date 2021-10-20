@@ -36,9 +36,9 @@ const Sidebar: React.FC<PropsType> = ({ currentUser, toSearch, users, dialogs, c
             }
             {
                 currentTab === SETTINGS &&
-                    <Settings currentPassword={currentPassword} updateCurrentPassword={props.updateCurrentPassword}
-                        newPassword={newPassword} updateNewPassword={props.updateNewPassword} 
-                        changePassword={props.changePassword} logout={props.logout} />
+                    <Settings currentUser={currentUser} logout={props.logout} 
+                        currentPassword={currentPassword} updateCurrentPassword={props.updateCurrentPassword}
+                        newPassword={newPassword} updateNewPassword={props.updateNewPassword} changePassword={props.changePassword} />
             }
             <div className={style.navContainer}>
                 <img src={dialogsButton} alt="Диалоги" className={style.navButton} onClick={ () => setCurrentTab(DIALOGS) } />
