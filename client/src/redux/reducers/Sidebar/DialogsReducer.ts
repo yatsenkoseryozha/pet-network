@@ -67,8 +67,10 @@ const dialogsReducer = (state = initialState, action: ActionsTypes): InitialStat
         case  GET_USERS:
             let filteredUsers: Array<UserType> = []
             action.users.forEach((user: UserType) => {
-                let hasAlready = state.dialogs.map((dialog: DialogType) => {
-                    return dialog.members.some((member: UserType) => member.username === user.username)
+                let hasAlready = false
+                state.dialogs.forEach((dialog: DialogType) => {
+                    if (dialog.members.some((member: UserType) => member.username === user.username)) 
+                        hasAlready = true
                 })
                 if (!hasAlready) filteredUsers.push(user)
             })
@@ -117,8 +119,10 @@ export const getUsers = (username: string): ThunkType => {
     return async (dispatch) => {
         try {
             dispatch(updateToSearch(username))
-            let data = await dialogsAPI.getUsers(username)
-            dispatch(getUsersActionCreator(data.users))
+            if (username) {
+                let data = await dialogsAPI.getUsers(username.toLowerCase())
+                dispatch(getUsersActionCreator(data.users))
+            } else dispatch(getUsersActionCreator([]))
         } catch (error) {
             console.log(error)
         }

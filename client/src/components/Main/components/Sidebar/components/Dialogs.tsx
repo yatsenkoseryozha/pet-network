@@ -62,7 +62,7 @@ const Dialogs: React.FC<PropsType> = ({ currentUser, toSearch, users, dialogs, .
             <div className={style.searchContainer}>
                 {
                     (toSearch) &&
-                        <img src={leftArrow} alt='Назад' className={style.leftArrow} 
+                        <img src={leftArrow} alt='Назад' className={style.leftArrow}
                             onClick={ () => props.getUsers('') } />
                 }
                 <SearchInput type='text' placeholder='Поиск' className={style.searchInput} value={toSearch} 

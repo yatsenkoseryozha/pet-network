@@ -35,19 +35,22 @@ class mainController {
     }
     async getUsers(req, res) {
         try {
+            const token = req.headers.authorization.split(' ')[1]
+            if (!token)
+                return res.status(401).json({message: "Пользователь не авторизован!"})
+            const decodedToken = jwt.verify(token, process.env.SECRET)
             const username = req.headers.username
-            if (!username) 
-                return res.status(200).json({ users: [] })
-            const users = await User.find({username: { $regex : username } })
-            let clearUsers = []
-            users.map(user => {
-                let clearUser = {
-                    id: user._id,
-                    username: user.username
-                }
-                clearUsers.push(clearUser)
-            })
-            return res.status(200).json({ users: clearUsers })
+            const users = await User.find({
+                $and: [
+                    {username: { 
+                        $regex : `^${username}`, $options: 'i'
+                    }},
+                    {username: { 
+                        $nin: decodedToken.username
+                    }},
+                ]
+            }, {id: 1, username: 1})
+            return res.status(200).json({ users })
         } catch (err) {
             console.log(err)
         }
