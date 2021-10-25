@@ -11,24 +11,11 @@ class mainController {
                 return res.status(401).json({message: "Пользователь не авторизован!"})
             const decodedToken = jwt.verify(token, process.env.SECRET)
             const conversations = await Conversation.find({
-                "members.id": { 
+                "members._id": { 
                     $in: [ decodedToken.id ]
                 }
-            })
-            let clearConversations = []
-            conversations.map(conversation => {
-                let clearConversation = {
-                    id: conversation._id,
-                    members: conversation.members,
-                    lastMessage: {
-                        id: conversation.lastMessage._id,
-                        sender: conversation.lastMessage.sender,
-                        text: conversation.lastMessage.text
-                    }
-                }
-                clearConversations.push(clearConversation)
-            })
-            return res.status(200).json({ conversations: clearConversations })
+            }, { id: 1, members: 1, lastMessage: 1 })
+            return res.status(200).json({ conversations })
         } catch (err) {
             console.log(err)
         }
@@ -85,23 +72,12 @@ class mainController {
             const token = req.headers.authorization.split(' ')[1]
             if (!token)
                 return res.status(401).json({ message: "Пользователь не авторизован!" })
-            try {
-                jwt.verify(token, process.env.SECRET)
-            } catch (err) {
-                return res.status(401).json({ message: "Ошибка аутентификации!" })
-            }
-            const conversation = req.headers.conversation
-            const messages = await Message.find({ conversation })
-            let clearMessages = []
-            messages.map(message => {
-                let clearMessage = {
-                    id: message._id,
-                    sender: message.sender,
-                    text: message.text
-                }
-                clearMessages.push(clearMessage)
-            })
-            return res.status(200).json({ messages: clearMessages })
+            const decodedToken = jwt.verify(token, process.env.SECRET)
+            const conversation = await Conversation.findOne({ _id: req.headers.conversation }, { members: 1 })
+            if (!conversation.members.find(member => member._id === decodedToken.id))
+                return res.status(403).json({ message: "Нет доступа!" })
+            const messages = await Message.find({ conversation: conversation.id }, { id: 1, sender: 1, text: 1 })
+            return res.status(200).json({ messages})
         } catch (err) {
             console.log(err)
         }

@@ -9,7 +9,7 @@ const GET_USERS = 'GET-USERS'
 
 
 export type UserType = {
-    id: string,
+    _id: string,
     username: string
 }
 
@@ -23,7 +23,7 @@ export type MessageType = {
 }
 
 export type DialogType = {
-    id: string | null
+    _id: string | null
     members: Array<UserType>
     lastMessage: MessageType | null
 }
@@ -54,7 +54,7 @@ const dialogsReducer = (state = initialState, action: ActionsTypes): InitialStat
             return {
                 ...state,
                 currentDialog: {
-                    id: action.dialog.id,
+                    id: action.dialog._id,
                     members: action.dialog.members,
                     messages: [...action.messages]
                 }
@@ -143,8 +143,11 @@ export const getDialogs = (): ThunkType => {
 export const setCurrentDialog = (dialog: DialogType): ThunkType => {
     return async (dispatch) => {
         try {
-            let data = await dialogsAPI.getMessages(dialog.id)
-            dispatch(setCurrentDialogActionCreator(dialog, data.messages))
+            if (dialog._id) {
+                console.log(dialog)
+                let data = await dialogsAPI.getMessages(dialog._id)
+                dispatch(setCurrentDialogActionCreator(dialog, data.messages))
+            } else dispatch(setCurrentDialogActionCreator(dialog, []))
         } catch (error) {
             console.log(error)
         }

@@ -81,14 +81,13 @@ const Dialogs: React.FC<PropsType> = ({ currentUser, toSearch, users, dialogs, .
                                                 <div className={style.receiver}>
                                                     {
                                                         currentUser && dialog.members
-                                                            .filter(member => member.id !== currentUser.id)
+                                                            .filter(member => member._id !== currentUser._id)
                                                             .map(member => member.username)
                                                     }
                                                 </div>
                                                 <div className={style.lastMessage}>
                                                     <span className={style.from}>
-                                                        {(dialog.lastMessage && currentUser) &&  
-                                                            typeof dialog.lastMessage.sender !== typeof currentUser.username ? null : "You: " }
+                                                        {dialog.lastMessage?.sender === currentUser?.username ? "You: " : null }
                                                     </span>
                                                     {dialog.lastMessage && dialog.lastMessage.text}
                                                 </div>
@@ -106,7 +105,7 @@ const Dialogs: React.FC<PropsType> = ({ currentUser, toSearch, users, dialogs, .
                                 users.map((user, index) => {
                                     return (
                                         <DialogsItem type={USER} key={index} onClick={() => currentUser && props.setCurrentDialog({
-                                            id: null,
+                                            _id: null,
                                             members: [user, currentUser],
                                             lastMessage: null
                                         }, currentUser)} >

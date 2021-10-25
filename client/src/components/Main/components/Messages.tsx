@@ -1,25 +1,25 @@
 import React, { useEffect, useRef } from 'react'
-import { MessageType, UserType } from '../../../redux/reducers/Sidebar/DialogsReducer'
+import { CurrentDialogType, MessageType, UserType } from '../../../redux/reducers/Sidebar/DialogsReducer'
 import style from '../Main.module.css'
 
 type PropsType = {
     currentUser: UserType | null
-    messages: Array<MessageType>
+    currentDialog: CurrentDialogType | null
 }
 
-const Messages: React.FC<PropsType> = ({ currentUser, messages }) => {
+const Messages: React.FC<PropsType> = ({ currentUser, currentDialog }) => {
     const scrollRef = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
         scrollRef.current?.scrollIntoView({behavior: "smooth"})
-    }, [messages])
+    }, [currentDialog?.messages])
 
     return (
         <div className={style.messagesContainer}> 
             <div className={style.messages}>
-                {messages.map((message: MessageType, index: number) => {
+                {currentDialog && currentDialog.messages.map((message: MessageType, index: number) => {
                     return (
-                        <div className={ (currentUser && message.sender.id === currentUser.id) ?
+                        <div className={ (currentUser && message.sender.id === currentUser._id) ?
                                 [style.message, style.currentUserMessage].join(' ') : style.message } 
                             ref={scrollRef} 
                             key={index}>
