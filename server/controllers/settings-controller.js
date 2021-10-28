@@ -3,7 +3,10 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 const mailService = require('../service/mail-service')
 
-class settingsController {
+class SettingsController {
+    constructor(io) {
+        this.io = io
+    }
     async changePassword(req, res) {
         try {
             const token = req.headers.authorization.split(' ')[1]
@@ -30,4 +33,4 @@ class settingsController {
     }
 }
 
-module.exports = new settingsController()
+module.exports = SettingsController

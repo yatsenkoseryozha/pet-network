@@ -1,8 +1,8 @@
+import React from 'react'
+import { DialogType, UserType } from '../../../../../redux/reducers/Sidebar/DialogsReducer'
 import styled from 'styled-components'
 import style from '../Sidebar.module.css'
 import leftArrow from '../images/leftArrow.svg'
-import { DialogType, UserType } from '../../../../../redux/reducers/Sidebar/DialogsReducer'
-import React from 'react'
 
 const DIALOG = 'DIALOG'
 const USER = 'USER'
@@ -13,7 +13,9 @@ type PropsType = {
     users: Array<UserType>
     dialogs: Array<DialogType>
     getUsers: (username: string) => void
-    setCurrentDialog: (dialog: DialogType, currentUser: UserType) => void
+    getDialogs: () => void
+    setCurrentDialog: (dialog: DialogType) => void
+    getMessages: (currentDialog: DialogType) => void
 }
 
 const SearchInput = styled.input `
@@ -57,6 +59,11 @@ const DialogsItem = styled.div `
 `
 
 const Dialogs: React.FC<PropsType> = ({ currentUser, toSearch, users, dialogs, ...props }) => {
+    const setCurrentDialog = (dialog: DialogType) => {
+        props.setCurrentDialog(dialog)
+        props.getMessages(dialog)
+    }
+
     return (
         <>
             <div className={style.searchContainer}>
@@ -74,22 +81,21 @@ const Dialogs: React.FC<PropsType> = ({ currentUser, toSearch, users, dialogs, .
                         <>
                             {
                                 dialogs.map((dialog, index) => {
-                                    if (dialog.members.find(member => member.username.indexOf(toSearch) === 0)) {
+                                    if (dialog.members.find(member => 
+                                        member.username.toLowerCase().indexOf(toSearch.toLowerCase()) === 0)) {
                                         return (
-                                            <DialogsItem type={DIALOG} key={index}
-                                                onClick={ () => currentUser && props.setCurrentDialog(dialog, currentUser) }>
+                                            <DialogsItem type={DIALOG} key={index} onClick={() => setCurrentDialog(dialog)}>
                                                 <div className={style.receiver}>
-                                                    {
-                                                        currentUser && dialog.members
-                                                            .filter(member => member._id !== currentUser._id)
+                                                    {dialog.members
+                                                            .filter(member => member._id !== currentUser?._id)
                                                             .map(member => member.username)
                                                     }
                                                 </div>
                                                 <div className={style.lastMessage}>
                                                     <span className={style.from}>
-                                                        {dialog.lastMessage?.sender === currentUser?.username ? "You: " : null }
+                                                        {dialog.lastMessage?.sender === currentUser?.username ? "You: " : null}
                                                     </span>
-                                                    {dialog.lastMessage && dialog.lastMessage.text}
+                                                    {dialog.lastMessage?.text}
                                                 </div>
                                             </DialogsItem>
                                         )
@@ -103,17 +109,23 @@ const Dialogs: React.FC<PropsType> = ({ currentUser, toSearch, users, dialogs, .
                         <>
                             {
                                 users.map((user, index) => {
-                                    return (
-                                        <DialogsItem type={USER} key={index} onClick={() => currentUser && props.setCurrentDialog({
+                                    let hasAlready = false
+                                    dialogs.forEach(dialog => {
+                                        if (dialog.members.find(member => member._id === user._id))
+                                        hasAlready = true
+                                    })
+                                    if (!hasAlready) return (
+                                        <DialogsItem type={USER} key={index} onClick={() => currentUser && setCurrentDialog({
                                             _id: null,
                                             members: [user, currentUser],
                                             lastMessage: null
-                                        }, currentUser)} >
+                                        })}>
                                             <div className={style.receiver} >
                                                 {user.username}
                                             </div>
                                         </DialogsItem>
                                     )
+                                    else return null
                                 })
                             }
                         </>

@@ -17,7 +17,9 @@ type PropsType = {
     currentPassword: string
     newPassword: string
     getUsers: (username: string) => void
+    getDialogs: () => void
     setCurrentDialog: (dialog: DialogType) => void
+    getMessages: (currentDialog: DialogType) => void
     updateCurrentPassword: (value: string) => void
     updateNewPassword: (value: string) => void
     changePassword: (currentPassword: string, newPassword: string) => void
@@ -31,7 +33,9 @@ const Sidebar: React.FC<PropsType> = ({ currentUser, toSearch, users, dialogs, c
         <div className={style.wrapper}>
             {
                 currentTab === DIALOGS &&
-                    <Dialogs currentUser={currentUser} dialogs={dialogs} setCurrentDialog={props.setCurrentDialog}
+                    <Dialogs currentUser={currentUser} 
+                        getDialogs={props.getDialogs} dialogs={dialogs} 
+                        setCurrentDialog={props.setCurrentDialog} getMessages={props.getMessages}
                         toSearch={toSearch} getUsers={props.getUsers} users={users} />
             }
             {

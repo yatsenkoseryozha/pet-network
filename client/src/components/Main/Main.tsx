@@ -1,12 +1,13 @@
 import React from 'react'
+import { Field, InjectedFormProps, reduxForm, reset } from 'redux-form'
 import SidebarContainer from './components/Sidebar/SidebarContainer'
 import Messages from './components/Messages'
 import style from './Main.module.css'
-import { CurrentDialogType, UserType } from '../../redux/reducers/Sidebar/DialogsReducer'
-import { Field, InjectedFormProps, reduxForm, reset } from 'redux-form'
+import { DialogType, UserType } from '../../redux/reducers/Sidebar/DialogsReducer'
+import { MessageType } from '../../redux/reducers/MainReducer'
 
 type NewMessagePropsType = {
-    currentDialog: CurrentDialogType | null
+    currentDialog: DialogType | null
 }
 
 type NewMessageFormDataType = {
@@ -29,26 +30,29 @@ const NewMessageReduxForm = reduxForm<NewMessageFormDataType, NewMessagePropsTyp
 
 type PropsType = {
     currentUser: UserType | null
-    currentDialog: CurrentDialogType | null
-    sendMessage: (currentDialog: CurrentDialogType | null, newMessage: string) => void
+    currentDialog: DialogType | null
+    messages: Array<MessageType>
+    sendMessage: (currentDialog: DialogType, newMessage: string) => void
 }
 
-const Main: React.FC<PropsType> = ({ currentUser, currentDialog, ...props }) => {
+const Main: React.FC<PropsType> = ({ currentUser, currentDialog, messages, ...props }) => {
     let receiver: string | undefined = undefined
 
     if (currentUser && currentDialog)
         receiver = currentDialog.members.find((member: UserType) => member.username !== currentUser.username)?.username
-    
+
     return (
         <>
             <SidebarContainer />
             <div className={style.wrapper}>
-                <div className={style.headerContainer}>
-                    <div className={style.receiver}>{receiver ? receiver : 'undefined'}</div>
+                {currentDialog && <div className={style.headerContainer}>
+                    <div className={style.receiver}>{receiver}</div>
+                </div>}
+                <div className={style.messagesContainer}>
+                    {currentDialog && <Messages currentUser={currentUser} messages={messages} />}
                 </div>
-                <Messages currentUser={currentUser} currentDialog={currentDialog} />
-                <NewMessageReduxForm currentDialog={currentDialog} 
-                    onSubmit={(formData: NewMessageFormDataType) => props.sendMessage(currentDialog, formData.newMessage)} />
+                {currentDialog && <NewMessageReduxForm currentDialog={currentDialog} 
+                    onSubmit={(formData: NewMessageFormDataType) => props.sendMessage(currentDialog, formData.newMessage)} />}
             </div>
         </>
     )

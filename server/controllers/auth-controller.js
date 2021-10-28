@@ -1,12 +1,15 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const generatePassword = require('password-generator')
-const {validationResult} = require('express-validator')
+const { validationResult } = require('express-validator')
 const User = require('../models/User')
 const tokenService = require('../service/token-service')
 const mailService = require('../service/mail-service')
 
 class authController {
+    constructor(io) {
+        this.io = io
+    }
     async registration(req, res) {
         try {
             const errors = validationResult(req)
@@ -58,4 +61,4 @@ class authController {
     }
 }
 
-module.exports = new authController()
+module.exports = authController

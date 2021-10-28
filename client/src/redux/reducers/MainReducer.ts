@@ -1,21 +1,28 @@
 import { ThunkAction } from 'redux-thunk'
 import { mainAPI } from '../../api/mainAPI'
+import { dialogsAPI } from '../../api/sidebar/dialogsAPI'
 import { AppStateType } from '../store'
-import { CurrentDialogType } from './Sidebar/DialogsReducer'
+import { DialogType, setCurrentDialog, SetCurrentDialogActionType, UserType } from './Sidebar/DialogsReducer'
 
-const UPDATE_NEW_MESSAGE = 'UPDATE-NEW-MESSAGE'
+const GET_MESSAGES = 'GET-MESSAGES'
+
+export type MessageType = {
+    _id: string
+    sender: UserType,
+    text: string
+}
 
 let initialState = {
-    newMessage: ''
+    messages: [] as Array<MessageType>
 }
 export type InitialStateType = typeof initialState
 
 const mainReducer = (state = initialState, action: ActionsTypes): InitialStateType => {
     switch(action.type) {
-        case UPDATE_NEW_MESSAGE:
+        case GET_MESSAGES:
             return {
                 ...state,
-                newMessage: action.value
+                messages: [...action.messages]
             }
         default: return state
     }
@@ -23,20 +30,37 @@ const mainReducer = (state = initialState, action: ActionsTypes): InitialStateTy
 
 export default mainReducer
 
-type ActionsTypes = UpdateNewMessageActionType
+type ActionsTypes = GetMessagesActionType | SetCurrentDialogActionType
 
-export type UpdateNewMessageActionType = {
-    type: typeof UPDATE_NEW_MESSAGE,
-    value: string
+export type GetMessagesActionType = {
+    type: typeof GET_MESSAGES,
+    messages: Array<MessageType>
 }
-export const updateNewMessage = (value: string): UpdateNewMessageActionType => ({ type: UPDATE_NEW_MESSAGE, value })
+export const getMessagesActionCreator = (messages: Array<MessageType>): GetMessagesActionType => ({ type: GET_MESSAGES, messages })
 
- export const sendMessage = (currentDialog: CurrentDialogType, 
-                            text: string): ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes> => {
+type ThunkType = ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes>
+
+export const getMessages = (dialog: DialogType): ThunkType => {
     return async (dispatch) => {
         try {
+            if (dialog._id) {
+                let data = await mainAPI.getMessages(dialog._id)
+                dispatch(getMessagesActionCreator(data.messages))
+            } else dispatch(getMessagesActionCreator([]))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+}
+
+export const sendMessage = (currentDialog: DialogType, text: string): ThunkType => {
+    return async (dispatch) => {
+        try {
+            if (!currentDialog._id) {
+                currentDialog = await dialogsAPI.createDialog(currentDialog.members)
+                dispatch(setCurrentDialog(currentDialog))
+            }
             await mainAPI.sendMessage(currentDialog, text)
-            dispatch(updateNewMessage(""))
         } catch (error) {
             console.log(error)
         }

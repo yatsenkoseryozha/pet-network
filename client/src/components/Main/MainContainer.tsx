@@ -1,24 +1,32 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import socket from '../../socket'
 import Main from './Main'
-import { updateNewMessage, sendMessage } from '../../redux/reducers/MainReducer'
-import { CurrentDialogType, UserType } from '../../redux/reducers/Sidebar/DialogsReducer'
+import { getMessages, MessageType, sendMessage } from '../../redux/reducers/MainReducer'
+import { DialogType, UserType } from '../../redux/reducers/Sidebar/DialogsReducer'
 import { AppStateType } from '../../redux/store'
 
 type MapStatePropsType = {
     currentUser: UserType | null
-    currentDialog: CurrentDialogType | null
-    newMessage: string
+    currentDialog: DialogType | null
+    messages: Array<MessageType>
 }
 
 type MapDispatchPropsType = {
-    updateNewMessage: (value: string) => void
-    sendMessage: (currentDialog: CurrentDialogType, text: string) => void
+    getMessages: (currentDialog: DialogType) => void
+    sendMessage: (currentDialog: DialogType, text: string) => void
 }
 
 type PropsType = MapStatePropsType & MapDispatchPropsType
 
 class MainContainer extends React.Component<PropsType> {
+    componentDidMount() {    
+        socket.on('NEW:MESSAGE', (receivers) => {
+            if (this.props.currentDialog && receivers.find((receiver: UserType) => receiver._id === this.props.currentUser?._id))
+                this.props.getMessages(this.props.currentDialog)
+        })
+    }
+
     render() {
         return <Main {...this.props} />
     }
@@ -28,10 +36,10 @@ const mapStateToProps = (state: AppStateType) => {
     return {
         currentUser: state.auth.currentUser,
         currentDialog: state.dialogs.currentDialog,
-        newMessage: state.main.newMessage
+        messages: state.main.messages
     }
 }
 
 export default connect<MapStatePropsType, MapDispatchPropsType, {}, AppStateType>(
-    mapStateToProps, {updateNewMessage, sendMessage}
+    mapStateToProps, {getMessages, sendMessage}
 )(MainContainer)

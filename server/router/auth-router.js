@@ -1,12 +1,18 @@
-const Router = require('express')
-const router = new Router()
-const authController = require('../controllers/auth-controller')
-const {check} = require('express-validator')
+const { Router } = require('express')
+const { check } = require('express-validator')
+const AuthController = require('../controllers/auth-controller')
 
-router.post('/registration', [
-    check('username', "Неправильное имя пользователя").notEmpty(),
-], authController.registration)
-router.post('/login', authController.login)
-router.get('/', authController.auth)
+const authRouter = (io) => {
+    const router = new Router()
+    const authController = new AuthController(io)
 
-module.exports = router  
+    router.post('/registration', [
+        check('username', "Неправильное имя пользователя").notEmpty(),
+    ], authController.registration)
+    router.post('/login', authController.login)
+    router.get('/', authController.auth)
+
+    return router
+}
+
+module.exports = authRouter

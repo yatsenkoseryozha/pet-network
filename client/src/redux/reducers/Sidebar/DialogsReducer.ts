@@ -1,6 +1,7 @@
 import { ThunkAction } from "redux-thunk"
 import { dialogsAPI } from "../../../api/sidebar/dialogsAPI"
 import { AppStateType } from "../../store"
+import { MessageType } from "../MainReducer"
 
 const GET_DIALOGS = 'GET-DIALOGS'
 const SET_CURRENT_DIALOG = 'SET-CURRENT-DIALOG'
@@ -13,32 +14,17 @@ export type UserType = {
     username: string
 }
 
-export type MessageType = {
-    id: string
-    sender: {
-        id: string
-        username: string
-    },
-    text: string
-}
-
 export type DialogType = {
     _id: string | null
     members: Array<UserType>
     lastMessage: MessageType | null
 }
 
-export type CurrentDialogType = {
-    id: string | null,
-    members: Array<UserType>,
-    messages: Array<MessageType>
-}
-
 const initialState = {
     toSearch: '',
     users: [] as Array<UserType>,
     dialogs: [] as Array<DialogType>,
-    currentDialog: null as CurrentDialogType | null
+    currentDialog: null as DialogType | null
 }
 
 export type InitialStateType = typeof initialState
@@ -53,11 +39,7 @@ const dialogsReducer = (state = initialState, action: ActionsTypes): InitialStat
         case SET_CURRENT_DIALOG:
             return {
                 ...state,
-                currentDialog: {
-                    id: action.dialog._id,
-                    members: action.dialog.members,
-                    messages: [...action.messages]
-                }
+                currentDialog: {...action.dialog}
             }
         case UPDATE_TO_SEARCH:
             return {
@@ -104,13 +86,12 @@ type GetDialogsActionType = {
 }
 export const getDialogsActionCreator = (dialogs: Array<DialogType>): GetDialogsActionType => ({ type: GET_DIALOGS, dialogs })
 
-type SetCurrentDialogActionType = {
+export type SetCurrentDialogActionType = {
     type: typeof SET_CURRENT_DIALOG
     dialog: DialogType
-    messages: Array<MessageType>
 }
-export const setCurrentDialogActionCreator = (dialog: DialogType, messages: Array<MessageType>): SetCurrentDialogActionType => (
-    { type: SET_CURRENT_DIALOG, dialog, messages }
+export const setCurrentDialog = (dialog: DialogType): SetCurrentDialogActionType => (
+    { type: SET_CURRENT_DIALOG, dialog }
 )
 
 type ThunkType = ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes>
@@ -134,20 +115,6 @@ export const getDialogs = (): ThunkType => {
         try {
             let data = await dialogsAPI.getDialogs()
             dispatch(getDialogsActionCreator(data.conversations))
-        } catch (error) {
-            console.log(error)
-        }
-    }
-}
-
-export const setCurrentDialog = (dialog: DialogType): ThunkType => {
-    return async (dispatch) => {
-        try {
-            if (dialog._id) {
-                console.log(dialog)
-                let data = await dialogsAPI.getMessages(dialog._id)
-                dispatch(setCurrentDialogActionCreator(dialog, data.messages))
-            } else dispatch(setCurrentDialogActionCreator(dialog, []))
         } catch (error) {
             console.log(error)
         }
