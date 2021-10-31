@@ -13,10 +13,10 @@ const App: React.FC<PropsType> = ({ currentUser }) => {
     return (
         <div className={style.wrapper}>
             <BrowserRouter>
-                <Route path="/">
-                    {!currentUser ? (localStorage.getItem('token') ? null : <Redirect to='/auth' />) : <MainContainer />}
+                <Route exact path="/">
+                    {!currentUser ? (localStorage.getItem('token') ? null : <Redirect to='/login' />) : <MainContainer />}
                 </Route>
-                <Route exact path="/auth">
+                <Route path={['/login', '/registration']}>
                     {currentUser ? <Redirect to='/' /> : <AuthContainer />}
                 </Route>
             </BrowserRouter>

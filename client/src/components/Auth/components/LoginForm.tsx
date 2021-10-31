@@ -1,27 +1,32 @@
-import React from 'react'
-import { Field, InjectedFormProps, reduxForm } from 'redux-form'
-import { LoginFormDataType } from '../Auth'
+import React, { useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { Form, Input, Button, notification } from 'antd'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import style from '../Auth.module.css'
 
 type PropsType = {
     isFetching: boolean
-    changeCurrentForm: () => void
+    login: (username: string, password: string) => void
 }
 
-const LoginForm: React.FC<InjectedFormProps<LoginFormDataType, PropsType> & PropsType> = ({ isFetching, ...props }) => {
+const LoginForm: React.FC<PropsType> = ({ isFetching, ...props }) => {
+    const onFinish = (values: any) => props.login(values.username, values.password)
+
     return (
-        <form className={style.form} onSubmit={props.handleSubmit}>
-            <Field placeholder='Логин' name='username' component='input' />
-            <Field placeholder='Пароль' name='password' type='password' component='input' />
-            <div className={style.buttons}>
-                <div className={style.authLink} onClick={props.changeCurrentForm}>Нет аккаунта?</div>
-                <button className={style.authButton} type="submit" disabled={isFetching ? true : false} >Войти</button>
-            </div>
-        </form>
+        <Form name='login' className={style.form} onFinish={onFinish}>
+            <Form.Item name='username' rules={[{ required: true, message: 'Поле является обязательным!' }]}>
+                <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Имя пользователя" />
+            </Form.Item>
+            <Form.Item name='password' rules={[{ required: true, message: "Поле является обязательным!" }]}>
+                <Input prefix={<LockOutlined className="site-form-item-icon" />} type='password' placeholder='Пароль' />
+            </Form.Item>
+            <Form.Item>
+                <Button type='primary' htmlType='submit' className={style.formButton} disabled={isFetching ? true : false}>Войти</Button>
+                <Link to="/registration">Нет аккаунта?</Link>
+            </Form.Item>
+        </Form>
     )
 }
 
-export default reduxForm<LoginFormDataType, PropsType>({
-    form: 'login'
-})(LoginForm)
+export default LoginForm
   

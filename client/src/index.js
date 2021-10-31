@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import AppContainer from './components/AppContainer'
 import store from './redux/store'
+import 'antd/dist/antd.css';
 
 ReactDOM.render(
     <Provider store={store}>

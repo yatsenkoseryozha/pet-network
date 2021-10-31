@@ -67,8 +67,9 @@ export const registration = (username: string, email: string): ThunkType => {
             let data = await authAPI.registration(username, email)
             dispatch(updateRegistrationMessage(data.message))
             dispatch(toggleIsFetching())
-        } catch (error) {
+        } catch (error: any) {
             console.log(error)
+            dispatch(updateRegistrationMessage(error.response.data.message))
             dispatch(toggleIsFetching())
         }
     }
@@ -82,7 +83,7 @@ export const login = (username: string, password: string): ThunkType => {
             localStorage.setItem('token', data.token)
             dispatch(toggleIsFetching())
             dispatch(auth())
-        } catch (error) {
+        } catch (error: any) {
             console.log(error)
             dispatch(toggleIsFetching())
         }
