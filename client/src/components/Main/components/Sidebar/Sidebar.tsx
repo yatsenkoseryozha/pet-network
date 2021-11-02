@@ -1,55 +1,145 @@
 import React, { useState } from 'react'
-import Dialogs from './components/Dialogs'
-import Settings from './components/Settings'
+import { Input, Dropdown, Button, Menu, Typography, List, Avatar } from 'antd'
+import { MenuOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
+import SearchResults from './components/SearchResults'
+import SettingsDrawer from './components/SettingsDrawers'
 import style from './Sidebar.module.css'
-import dialogsButton from './images/dialogsButton.svg'
-import settingsButton from './images/settingsButton.svg'
-import { DialogType, UserType } from '../../../../redux/reducers/Sidebar/DialogsReducer'
+import { DialogType, UserType } from '../../../../redux/reducers/SidebarReducer'
 
-export const DIALOGS = 'DIALOGS'
-export const SETTINGS = 'SETTINGS'
+const { Text } = Typography
 
-type PropsType = {
+export const DialogsListItem: React.FC<{
+    dialog: DialogType
+    currentDialog: DialogType | null
+    receiver: UserType | undefined
+    setCurrentDialog: () => void
+}> = ({
+    dialog,
+    currentDialog,
+    receiver,
+    ...props
+}) => {
+        return (
+            <List.Item
+                onClick={props.setCurrentDialog}
+                className={style.dialog}
+                style={dialog._id !== currentDialog?._id ? { padding: '15px' } : { padding: '15px', backgroundColor: '#F5F5F5' }}
+            >
+                <List.Item.Meta
+                    avatar={<Avatar style={{ color: '#f56a00', backgroundColor: '#fde3cf' }}>{receiver?.username[0].toUpperCase()}</Avatar>}
+                    title={receiver?.username}
+                    description={dialog.lastMessage?.sender._id === receiver?._id ? dialog.lastMessage?.text : <span><b>You:</b> {dialog.lastMessage?.text}</span>}
+                />
+            </List.Item>
+        )
+    }
+
+const Sidebar: React.FC<{
     currentUser: UserType | null
-    toSearch: string
+    isFetching: boolean
     users: Array<UserType>
     dialogs: Array<DialogType>
-    currentPassword: string
-    newPassword: string
+    currentDialog: DialogType | null
+    passwordChangeMessage: string
     getUsers: (username: string) => void
-    getDialogs: () => void
     setCurrentDialog: (dialog: DialogType) => void
-    getMessages: (currentDialog: DialogType) => void
-    updateCurrentPassword: (value: string) => void
-    updateNewPassword: (value: string) => void
+    getMessages: (dialog: DialogType) => void
     changePassword: (currentPassword: string, newPassword: string) => void
+    updatePasswordChangeMessage: (value: string) => void
     logout: () => void
-}
+}> = ({
+    currentUser,
+    isFetching,
+    users,
+    dialogs,
+    currentDialog,
+    passwordChangeMessage,
+    ...props
+}) => {
+        const DropdownMenu = (
+            <Menu>
+                <Menu.Item key='settings' onClick={() => changeSettingsDrawerVisible(true)}>
+                    <Text>
+                        <SettingOutlined /> Настройки
+                    </Text>
+                </Menu.Item>
+                <Menu.Item key='logout' onClick={props.logout}>
+                    <Text type="danger">
+                        <LogoutOutlined /> Выйти
+                    </Text>
+                </Menu.Item>
+            </Menu>
+        )
 
-const Sidebar: React.FC<PropsType> = ({ currentUser, toSearch, users, dialogs, currentPassword, newPassword, ...props }) => {
-    const [currentTab, setCurrentTab] = useState(DIALOGS)
+        const [settingsDrawerVisible, changeSettingsDrawerVisible] = useState(false)
 
-    return (
-        <div className={style.wrapper}>
-            {
-                currentTab === DIALOGS &&
-                    <Dialogs currentUser={currentUser} 
-                        getDialogs={props.getDialogs} dialogs={dialogs} 
-                        setCurrentDialog={props.setCurrentDialog} getMessages={props.getMessages}
-                        toSearch={toSearch} getUsers={props.getUsers} users={users} />
-            }
-            {
-                currentTab === SETTINGS &&
-                    <Settings currentUser={currentUser} logout={props.logout} 
-                        currentPassword={currentPassword} updateCurrentPassword={props.updateCurrentPassword}
-                        newPassword={newPassword} updateNewPassword={props.updateNewPassword} changePassword={props.changePassword} />
-            }
-            <div className={style.navContainer}>
-                <img src={dialogsButton} alt="Диалоги" className={style.navButton} onClick={ () => setCurrentTab(DIALOGS) } />
-                <img src={settingsButton} alt="Настройки" className={style.navButton} onClick={ () => setCurrentTab(SETTINGS) } />
-            </div>
-        </div>
-    )
-}
+        const [toSearch, updateToSearch] = useState('')
+
+        const setCurrentDialog = (dialog: DialogType) => {
+            props.setCurrentDialog(dialog)
+            props.getMessages(dialog)
+        }
+
+        return (
+            <>
+                <div className={style.searchContainer}>
+                    <Dropdown overlay={DropdownMenu} placement="bottomRight" trigger={['click']}>
+                        <Button
+                            style={{
+                                border: 'none',
+                                borderRadius: '50%',
+                                padding: '4px 9px',
+                                marginRight: '4px',
+                                boxShadow: 'none'
+                            }}
+                        >
+                            <MenuOutlined />
+                        </Button>
+                    </Dropdown>
+                    <Input
+                        placeholder="Кого будем искать?"
+                        allowClear
+                        style={{ borderRadius: '24px' }}
+                        onChange={(event) => {
+                            updateToSearch(event.currentTarget.value)
+                            props.getUsers(event.currentTarget.value)
+                        }}
+                    />
+                </div>
+                {
+                    toSearch ?
+                        <SearchResults
+                            isFetching={isFetching}
+                            dialogs={dialogs}
+                            setCurrentDialog={setCurrentDialog}
+                            currentDialog={currentDialog}
+                            toSearch={toSearch}
+                            users={users}
+                            currentUser={currentUser}
+                        /> : <List
+                            dataSource={dialogs}
+                            renderItem={item => {
+                                let receiver = item.members.find((member: UserType) => member.username !== currentUser?.username)
+                                if (item.members.find(member => member._id === receiver?._id))
+                                    return <DialogsListItem
+                                        dialog={item}
+                                        setCurrentDialog={() => setCurrentDialog(item)}
+                                        currentDialog={currentDialog}
+                                        receiver={receiver}
+                                    />
+                            }}
+                        />
+                }
+                <SettingsDrawer
+                    isFetching={isFetching}
+                    settingsDrawerVisible={settingsDrawerVisible}
+                    changeSettingsDrawerVisible={changeSettingsDrawerVisible}
+                    changePassword={props.changePassword}
+                    passwordChangeMessage={passwordChangeMessage}
+                    updatePasswordChangeMessage={props.updatePasswordChangeMessage}
+                />
+            </>
+        )
+    }
 
 export default Sidebar

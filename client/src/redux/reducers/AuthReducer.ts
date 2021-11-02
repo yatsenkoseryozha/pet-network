@@ -1,7 +1,7 @@
 import { ThunkAction } from 'redux-thunk'
 import { authAPI } from '../../api/authAPI'
 import { AppStateType } from '../store'
-import { UserType } from './Sidebar/DialogsReducer'
+import { UserType } from './SidebarReducer'
 
 const TOGGLE_IS_FETCHING = 'TOGGLE-IS-FETCHING'
 const UPDATE_REGISTRATION_MESSAGE = 'UPDATE-REGISTRATION-MESSAGE'

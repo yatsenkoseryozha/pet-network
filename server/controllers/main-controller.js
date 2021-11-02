@@ -1,7 +1,11 @@
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
+
 const User = require('../models/User')
 const Conversation = require('../models/Conversation')
 const Message = require('../models/Message')
+
+const mailService = require('../service/mail-service')
 
 class MainController {
     constructor(io) {
@@ -64,9 +68,6 @@ class MainController {
                 return res.status(401).json({message: "Пользователь не авторизован!"})
             const decodedToken = jwt.verify(token, process.env.SECRET)
             let { conversation, text } = req.body
-            await Conversation.findOneAndUpdate({ _id: conversation._id }, {
-                lastMessage: { sender: decodedToken.username, text }
-            })
             const newMessage = new Message({ 
                 conversation: conversation._id, 
                 sender: {
@@ -74,8 +75,13 @@ class MainController {
                     username: decodedToken.username
                 }, 
                 text 
+            }).save()
+            await Conversation.findOneAndUpdate({ _id: newMessage.conversation }, {
+                lastMessage: {
+                    sender: newMessage.sender,
+                    text: newMessage.text
+                }
             })
-            await newMessage.save()
             this.io.emit('NEW:MESSAGE', conversation.members)
             return res.status(200).json({ message: "Сообщение отправлено!" })
         } catch (err) {
@@ -95,6 +101,29 @@ class MainController {
             return res.status(200).json({ messages })
         } catch (err) {
             console.log(err)
+        }
+    }
+    async changePassword(req, res) {
+        try {
+            const token = req.headers.authorization.split(' ')[1]
+            if (!token)
+                return res.status(401).json({message: "Пользователь не авторизован!"})
+            const decodedToken = jwt.verify(token, process.env.SECRET)
+            const { currentPassword, newPassword } = req.body
+            const user = await User.findOne({ _id: decodedToken.id })
+            const validCurrentPassword = bcrypt.compareSync(currentPassword, user.password)
+            if (!validCurrentPassword) 
+                return res.status(400).json({message: "Неверный текущий пароль!"})
+            const hashNewPassword = bcrypt.hashSync(newPassword, 7)
+            await User.findOneAndUpdate({ _id: decodedToken.id }, {
+                password: hashNewPassword,
+                isActivated: true
+            })
+            await mailService.changePasswordNotification(user.email)
+            return res.status(200).json({message: "Пароль успешно изменен!"})
+        } catch(e) {
+            console.log(e)
+            return res.status(400).json({message: "Не удалось сменить пароль!"})
         }
     }
 }

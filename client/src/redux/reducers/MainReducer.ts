@@ -1,8 +1,8 @@
 import { ThunkAction } from 'redux-thunk'
 import { mainAPI } from '../../api/mainAPI'
-import { dialogsAPI } from '../../api/sidebar/dialogsAPI'
+import { sidebarAPI } from '../../api/sidebarAPI'
 import { AppStateType } from '../store'
-import { DialogType, setCurrentDialog, SetCurrentDialogActionType, UserType } from './Sidebar/DialogsReducer'
+import { DialogType, setCurrentDialog, SetCurrentDialogActionType, UserType } from './SidebarReducer'
 
 const GET_MESSAGES = 'GET-MESSAGES'
 
@@ -57,7 +57,7 @@ export const sendMessage = (currentDialog: DialogType, text: string): ThunkType 
     return async (dispatch) => {
         try {
             if (!currentDialog._id) {
-                currentDialog = await dialogsAPI.createDialog(currentDialog.members)
+                currentDialog = await sidebarAPI.createDialog(currentDialog.members)
                 dispatch(setCurrentDialog(currentDialog))
             }
             await mainAPI.sendMessage(currentDialog, text)

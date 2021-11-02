@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { MessageType } from '../../../redux/reducers/MainReducer'
-import { UserType } from '../../../redux/reducers/Sidebar/DialogsReducer'
+import { UserType } from '../../../redux/reducers/SidebarReducer'
 import style from '../Main.module.css'
 
 type PropsType = {

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { MessageType } from '../redux/reducers/MainReducer'
-import { DialogType } from '../redux/reducers/Sidebar/DialogsReducer'
+import { DialogType } from '../redux/reducers/SidebarReducer'
 
 export const mainInstance = axios.create({
     baseURL: 'http://localhost:5000/'

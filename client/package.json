@@ -1,6 +1,6 @@
 {
   "name": "pet-network",
-  "version": "9.1.0",
+  "version": "9.2.0",
   "private": true,
   "dependencies": {
     "@types/jest": "^27.0.2",

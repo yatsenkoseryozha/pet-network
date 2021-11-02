@@ -3,8 +3,11 @@ import { Field, InjectedFormProps, reduxForm, reset } from 'redux-form'
 import SidebarContainer from './components/Sidebar/SidebarContainer'
 import Messages from './components/Messages'
 import style from './Main.module.css'
-import { DialogType, UserType } from '../../redux/reducers/Sidebar/DialogsReducer'
+import { DialogType, UserType } from '../../redux/reducers/SidebarReducer'
 import { MessageType } from '../../redux/reducers/MainReducer'
+import { Layout } from 'antd'
+
+const { Content, Sider } = Layout
 
 type NewMessagePropsType = {
     currentDialog: DialogType | null
@@ -42,10 +45,12 @@ const Main: React.FC<PropsType> = ({ currentUser, currentDialog, messages, ...pr
         receiver = currentDialog.members.find((member: UserType) => member.username !== currentUser.username)?.username
 
     return (
-        <>
-            <SidebarContainer />
-            <div className={style.wrapper}>
-                {currentDialog && <div className={style.headerContainer}>
+        <Layout>
+            <Sider width={370} theme='light' collapsedWidth="0">
+                <SidebarContainer />
+            </Sider>
+            <Content className={style.wrapper}>
+            {currentDialog && <div className={style.headerContainer}>
                     <div className={style.receiver}>{receiver}</div>
                 </div>}
                 <div className={style.messagesContainer}>
@@ -53,8 +58,8 @@ const Main: React.FC<PropsType> = ({ currentUser, currentDialog, messages, ...pr
                 </div>
                 {currentDialog && <NewMessageReduxForm currentDialog={currentDialog} 
                     onSubmit={(formData: NewMessageFormDataType) => props.sendMessage(currentDialog, formData.newMessage)} />}
-            </div>
-        </>
+            </Content>
+        </Layout>
     )
 }
 

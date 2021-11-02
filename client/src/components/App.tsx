@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Redirect } from 'react-router-dom'
 import AuthContainer from './Auth/AuthContainer'
 import MainContainer from './Main/MainContainer'
 import style from './App.module.css'
-import { UserType } from '../redux/reducers/Sidebar/DialogsReducer'
+import { UserType } from '../redux/reducers/SidebarReducer'
 
 type PropsType = {
     currentUser: UserType | null

@@ -1,6 +1,6 @@
 {
   "name": "pet-network",
-  "version": "9.0.0",
+  "version": "9.0.2",
   "main": "index.js",
   "scripts": {
     "serve": "nodemon index.js"

@@ -1,5 +1,9 @@
-import { mainInstance } from '../mainAPI'
-import { DialogType, UserType } from '../../redux/reducers/Sidebar/DialogsReducer'
+import { mainInstance } from './mainAPI'
+import { DialogType, UserType } from '../redux/reducers/SidebarReducer'
+
+type GetDialogsAPIType = {
+    conversations: Array<DialogType>
+}
 
 type GetUsersAPIType = {
     users: Array<UserType>
@@ -9,11 +13,15 @@ type CreateDialogAPIType = {
     conversation: DialogType
 }
 
-type GetDialogsAPIType = {
-    conversations: Array<DialogType>
+type ChangePasswordAPIType = {
+    message: string
 }
 
-export const dialogsAPI = {
+export const sidebarAPI = {
+    getDialogs: async () => {
+        return mainInstance.get<GetDialogsAPIType>('get-conversations')
+            .then(response => response.data)
+    },
     getUsers: async (username: string) => {
         return mainInstance.get<GetUsersAPIType>('get-users', {
             headers: {
@@ -25,8 +33,8 @@ export const dialogsAPI = {
         return mainInstance.post<CreateDialogAPIType>('create-conversation', { members })
             .then(response => response.data.conversation)
     },
-    getDialogs: async () => {
-        return mainInstance.get<GetDialogsAPIType>('get-conversations')
+    changePassword: async (currentPassword: string, newPassword: string) => {
+        return mainInstance.post<ChangePasswordAPIType>('change-password', {currentPassword, newPassword })
             .then(response => response.data)
     }
 }

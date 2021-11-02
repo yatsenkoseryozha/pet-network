@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { mainInstance } from './mainAPI'
-import { UserType } from '../redux/reducers/Sidebar/DialogsReducer'
+import { UserType } from '../redux/reducers/SidebarReducer'
 
 const authInstace = axios.create({
     baseURL: 'http://localhost:5000/auth/'

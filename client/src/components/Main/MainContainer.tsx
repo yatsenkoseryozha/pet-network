@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import socket from '../../socket'
 import Main from './Main'
 import { getMessages, MessageType, sendMessage } from '../../redux/reducers/MainReducer'
-import { DialogType, UserType } from '../../redux/reducers/Sidebar/DialogsReducer'
+import { DialogType, UserType } from '../../redux/reducers/SidebarReducer'
 import { AppStateType } from '../../redux/store'
 
 type MapStatePropsType = {
@@ -35,7 +35,7 @@ class MainContainer extends React.Component<PropsType> {
 const mapStateToProps = (state: AppStateType) => {
     return {
         currentUser: state.auth.currentUser,
-        currentDialog: state.dialogs.currentDialog,
+        currentDialog: state.sidebar.currentDialog,
         messages: state.main.messages
     }
 }

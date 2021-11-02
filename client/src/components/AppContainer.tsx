@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import App from './App'
 import { auth } from '../redux/reducers/AuthReducer'
-import { UserType } from '../redux/reducers/Sidebar/DialogsReducer'
+import { UserType } from '../redux/reducers/SidebarReducer'
 import { AppStateType } from '../redux/store'
 
 type MapStatePropsType = {
