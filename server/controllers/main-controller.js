@@ -75,7 +75,8 @@ class MainController {
                     username: decodedToken.username
                 }, 
                 text 
-            }).save()
+            })
+            await newMessage.save()
             await Conversation.findOneAndUpdate({ _id: newMessage.conversation }, {
                 lastMessage: {
                     sender: newMessage.sender,

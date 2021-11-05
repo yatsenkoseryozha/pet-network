@@ -1,6 +1,6 @@
 .searchContainer {
     display: flex;
-    padding: 15px;
+    padding: 8px 15px;
 }
 
 .feedbackContainer {
@@ -15,4 +15,11 @@
     transition: 0.3s;
 } .dialog:hover {
     background-color: #F5F5F5;
+}
+
+.title,
+.description {
+    height: 25px;
+    font-size: 16px;
+    line-height: 1.5rem;
 }

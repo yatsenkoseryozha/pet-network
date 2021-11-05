@@ -1,4 +1,5 @@
 import { applyMiddleware, combineReducers, createStore } from 'redux'
+import { reducer as formReducer } from 'redux-form'
 import thunkMiddleware from 'redux-thunk'
 import authReducer from './reducers/AuthReducer'
 import mainReducer from './reducers/MainReducer'
@@ -7,7 +8,8 @@ import sidebarReducer from './reducers/SidebarReducer'
 let rootReducer = combineReducers({
     auth: authReducer,
     main: mainReducer,
-    sidebar: sidebarReducer
+    sidebar: sidebarReducer,
+    form: formReducer
 })
 
 type RootReducerType = typeof rootReducer

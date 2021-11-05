@@ -2,6 +2,7 @@ import React from 'react'
 import { DialogType, UserType } from '../../../../../redux/reducers/SidebarReducer'
 import style from '../Sidebar.module.css'
 import { List, Avatar, Divider, Empty, Spin } from 'antd'
+import { UserOutlined } from '@ant-design/icons'
 import { DialogsListItem } from '../Sidebar'
 
 const SearchResults: React.FC<{
@@ -64,8 +65,17 @@ const SearchResults: React.FC<{
                                             })}
                                         >
                                             <List.Item.Meta
-                                                avatar={<Avatar style={{ color: '#f56a00', backgroundColor: '#fde3cf' }}>{item.username[0].toUpperCase()}</Avatar>}
-                                                title={item.username}
+                                                avatar={<Avatar size={54} icon={<UserOutlined />} />}
+                                                title={
+                                                    <div className={style.title}>
+                                                        {item.username}
+                                                    </div>
+                                                }
+                                                description={
+                                                    <div className={style.description}>
+                                                        last seen recently
+                                                    </div>
+                                                }
                                             />
                                         </List.Item>
                                     )}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Input, Dropdown, Button, Menu, Typography, List, Avatar } from 'antd'
-import { MenuOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
+import { MenuOutlined, SettingOutlined, LogoutOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons'
 import SearchResults from './components/SearchResults'
 import SettingsDrawer from './components/SettingsDrawers'
 import style from './Sidebar.module.css'
@@ -23,12 +23,30 @@ export const DialogsListItem: React.FC<{
             <List.Item
                 onClick={props.setCurrentDialog}
                 className={style.dialog}
-                style={dialog._id !== currentDialog?._id ? { padding: '15px' } : { padding: '15px', backgroundColor: '#F5F5F5' }}
+                style={
+                    dialog._id !== currentDialog?._id ? {
+                        padding: '15px'
+                    } : {
+                        padding: '15px',
+                        backgroundColor: '#F5F5F5'
+                    }
+                }
             >
                 <List.Item.Meta
-                    avatar={<Avatar style={{ color: '#f56a00', backgroundColor: '#fde3cf' }}>{receiver?.username[0].toUpperCase()}</Avatar>}
-                    title={receiver?.username}
-                    description={dialog.lastMessage?.sender._id === receiver?._id ? dialog.lastMessage?.text : <span><b>You:</b> {dialog.lastMessage?.text}</span>}
+                    avatar={<Avatar size={54} icon={<UserOutlined />} />}
+                    title={
+                        <div className={style.title}>
+                            {receiver?.username}
+                        </div>
+                    }
+                    description={
+                        <div className={style.description}>
+                            {
+                                dialog.lastMessage?.sender._id === receiver?._id ?
+                                    dialog.lastMessage?.text : <span><b>You:</b> {dialog.lastMessage?.text}</span>
+                            }
+                        </div>
+                    }
                 />
             </List.Item>
         )
@@ -85,21 +103,35 @@ const Sidebar: React.FC<{
                 <div className={style.searchContainer}>
                     <Dropdown overlay={DropdownMenu} placement="bottomRight" trigger={['click']}>
                         <Button
+                            size='large'
+                            shape='circle'
+                            icon={
+                                <MenuOutlined
+                                    style={{
+                                        fontSize: '18px',
+                                        color: 'rgba(112,117,121,0.8)'
+                                    }}
+                                />
+                            }
                             style={{
                                 border: 'none',
-                                borderRadius: '50%',
-                                padding: '4px 9px',
-                                marginRight: '4px',
+                                marginRight: '18px',
                                 boxShadow: 'none'
                             }}
-                        >
-                            <MenuOutlined />
-                        </Button>
+                        />
                     </Dropdown>
                     <Input
                         placeholder="Кого будем искать?"
+                        prefix={
+                            <SearchOutlined style={{ color: 'rgba(112,117,121,0.8)' }}
+                            />
+                        }
+                        size='large'
                         allowClear
-                        style={{ borderRadius: '24px' }}
+                        style={{
+                            borderRadius: '24px',
+                            lineHeight: '26px'
+                        }}
                         onChange={(event) => {
                             updateToSearch(event.currentTarget.value)
                             props.getUsers(event.currentTarget.value)
