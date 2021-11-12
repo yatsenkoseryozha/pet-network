@@ -11,7 +11,7 @@ const { Title } = Typography
 const Auth: React.FC<{
     isFetching: boolean
     notification: AuthNotificationType | null
-    registration: (username: string, email: string) => void
+    registration: (username: string, email: string, password: string) => void
     login: (username: string, password: string) => void
     updateNotification: (notification: AuthNotificationType | null) => void
 }> = ({

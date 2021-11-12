@@ -68,11 +68,11 @@ export const setCurrentUser = (user: UserType | null): SetCurrentUserActionType 
 
 type ThunkType = ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes>
 
-export const registration = (username: string, email: string): ThunkType => {
+export const registration = (username: string, email: string, password: string): ThunkType => {
     return async (dispatch) => {
         try {
             dispatch(toggleIsAuthFetching())
-            let data = await authAPI.registration(username, email)
+            let data = await authAPI.registration(username, email, password)
             dispatch(updateAuthNotification({
                 type: data.type,
                 code: data.code,

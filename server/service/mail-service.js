@@ -13,24 +13,6 @@ class MailService {
         })
     }
 
-    async sendActivationMail(email, username, password) {
-        await this.transporter.sendMail({
-            from: `"PET-NETWORK" <${process.env.SMTP_USER}>`,
-            to: email,
-            subject: 'PET-NETWORK - Спасибо за регистрацию!',
-            text: '',
-            html:
-                `
-                    <div>
-                        <p>Спасибо за регистрацию!</p>
-                        <p>Ваши данные для входа:<br>
-                        Логин: <b>${username}</b><br>
-                        Пароль: <b>${password}</b></p>
-                    </div> 
-                `
-        })
-    }
-
     async changePasswordNotification(email) {
         await this.transporter.sendMail({
             from: `"PET-NETWORK" <${process.env.SMTP_USER}>`,

@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Form, Input, Button } from 'antd'
-import { UserOutlined, MailOutlined } from '@ant-design/icons'
+import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons'
 import style from '../Auth.module.css'
 import { AuthNotificationType } from '../../../redux/reducers/AuthReducer'
 
 const RegistrationForm: React.FC<{
     isFetching: boolean
     notification: AuthNotificationType | null
-    registration: (username: string, email: string) => void
+    registration: (username: string, email: string, password: string) => void
     updateNotification: (notification: AuthNotificationType | null) => void
 }> = ({
     isFetching,
@@ -18,7 +18,11 @@ const RegistrationForm: React.FC<{
 }) => {
         useEffect(() => () => updateNotification(null), [updateNotification])
 
-        const onFinish = (values: any) => props.registration(values.username, values.email)
+        const onFinish = (values: {
+            username: string
+            email: string
+            password: string
+        }) => props.registration(values.username, values.email, values.password)
 
         return (
             <Form name='registration' className={style.form} onFinish={onFinish}>
@@ -61,6 +65,22 @@ const RegistrationForm: React.FC<{
                     <Input
                         placeholder="Почта"
                         prefix={<MailOutlined />}
+                    />
+                </Form.Item>
+                <Form.Item
+                    name='password'
+                    rules={[
+                        {
+                            required: true,
+                            message: "Обязательное поле"
+                        }
+                    ]}
+                >
+                    <Input
+                        placeholder="Пароль"
+                        type='password'
+                        prefix={<LockOutlined />}
+                        onChange={() => notification && updateNotification(null)}
                     />
                 </Form.Item>
                 <Form.Item>

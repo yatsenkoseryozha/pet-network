@@ -28,8 +28,8 @@ type AuthAPIType = {
 }
 
 export const authAPI = {
-    registration: async (username: string, email: string) => {
-        return authInstace.post<RegistrationAPIType>('registration', { username, email })
+    registration: async (username: string, email: string, password: string) => {
+        return authInstace.post<RegistrationAPIType>('registration', { username, email, password })
             .then(response => response.data)
     },
     login: async (username: string, password: string) => {

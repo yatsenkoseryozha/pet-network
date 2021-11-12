@@ -11,19 +11,17 @@ class authController {
     }
     async registration(req, res) {
         try {
-            const { username, email } = req.body
+            const { username, password, email } = req.body
             const usernameTaken = await User.findOne({ username })
             if (usernameTaken)
                 return res.status(400).json({ type: 'error', code: 1, message: "Это имя пользователя уже используется!" })
             const emailTaken = await User.findOne({ email })
             if (emailTaken)
                 return res.status(400).json({ type: 'error', code: 2, message: "Эта почта уже используется!" })
-            const password = generatePassword(12, false)
             const hashPassword = bcrypt.hashSync(password, 7)
             const user = new User({ email, username, password: hashPassword })
-            await mailService.sendActivationMail(email, username, password)
             await user.save()
-            return res.status(200).json({ type: 'success', code: 0, message: "Успешно! Проверь почту" })
+            return res.status(200).json({ type: 'success', code: 0, message: "Аккаунт был успешно создан!" })
         } catch(e) {
             console.log(e)
             return res.status(500).json({ type: 'error', code: 99, message: "Неизвестная ошибка. Попробуй позже" })
