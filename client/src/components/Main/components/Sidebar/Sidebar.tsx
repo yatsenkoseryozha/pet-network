@@ -1,12 +1,55 @@
 import React, { useState } from 'react'
-import { Input, Dropdown, Button, Menu, Typography, List, Avatar } from 'antd'
+import { Input, Dropdown, Button, Menu, Typography, List, Avatar, Empty } from 'antd'
 import { MenuOutlined, SettingOutlined, LogoutOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons'
 import SearchResults from './components/SearchResults'
 import SettingsDrawer from './components/SettingsDrawers'
 import style from './Sidebar.module.css'
-import { DialogType, UserType } from '../../../../redux/reducers/SidebarReducer'
+import { DialogType, UserType, SidebarNotificationType } from '../../../../redux/reducers/SidebarReducer'
+import { Field, InjectedFormProps, reduxForm } from 'redux-form'
 
 const { Text } = Typography
+
+type SearchPropsType = {
+    getUsers: (username: string) => void
+}
+
+type SearchFormDataType = {
+    toSearch: string
+}
+
+class SearchForm extends React.Component<InjectedFormProps<SearchFormDataType, SearchPropsType> & SearchPropsType, {}> {
+    renderField(props: any) {
+        return (
+            <Input
+                {...props.input}
+                placeholder="Кого будем искать?"
+                prefix={<SearchOutlined style={{ color: 'rgba(112,117,121,0.8)' }} />}
+                size='large'
+                allowClear
+                style={{
+                    borderRadius: '24px',
+                    lineHeight: '26px'
+                }}
+            />
+        )
+    }
+
+    render() {
+        return (
+            <form className={style.searchForm} onSubmit={this.props.handleSubmit} >
+                <Field 
+                    name='toSearch' 
+                    component={this.renderField} 
+                    onChange={(_, value: string) => this.props.getUsers(value)}
+                />
+            </form>
+        )
+    }
+}
+
+const SearchReduxForm = reduxForm<SearchFormDataType, SearchPropsType>({
+    form: 'search'
+})(SearchForm)
 
 export const DialogsListItem: React.FC<{
     dialog: DialogType
@@ -23,14 +66,10 @@ export const DialogsListItem: React.FC<{
             <List.Item
                 onClick={props.setCurrentDialog}
                 className={style.dialog}
-                style={
-                    dialog._id !== currentDialog?._id ? {
-                        padding: '15px'
-                    } : {
-                        padding: '15px',
-                        backgroundColor: '#F5F5F5'
-                    }
-                }
+                style={{
+                    padding: '15px',
+                    backgroundColor: `${dialog._id !== currentDialog?._id ? '' : '#F5F5F5'}`
+                }}
             >
                 <List.Item.Meta
                     avatar={<Avatar size={54} icon={<UserOutlined />} />}
@@ -54,26 +93,30 @@ export const DialogsListItem: React.FC<{
 
 const Sidebar: React.FC<{
     currentUser: UserType | null
+    toSearch: string
     isFetching: boolean
     users: Array<UserType>
     dialogs: Array<DialogType>
     currentDialog: DialogType | null
-    passwordChangeMessage: string
+    notification: SidebarNotificationType | null
+    updateNotification: (notification: SidebarNotificationType | null) => void
     getUsers: (username: string) => void
     setCurrentDialog: (dialog: DialogType) => void
     getMessages: (dialog: DialogType) => void
-    changePassword: (currentPassword: string, newPassword: string) => void
-    updatePasswordChangeMessage: (value: string) => void
+    changePassword: (currentPassword: string, newPassword: string, callback: any) => void
     logout: () => void
 }> = ({
     currentUser,
+    toSearch,
     isFetching,
     users,
     dialogs,
     currentDialog,
-    passwordChangeMessage,
+    notification,
     ...props
 }) => {
+        const [settingsDrawerVisible, changeSettingsDrawerVisible] = useState(false)
+
         const DropdownMenu = (
             <Menu>
                 <Menu.Item key='settings' onClick={() => changeSettingsDrawerVisible(true)}>
@@ -82,21 +125,12 @@ const Sidebar: React.FC<{
                     </Text>
                 </Menu.Item>
                 <Menu.Item key='logout' onClick={props.logout}>
-                    <Text type="danger">
+                    <Text type='danger'>
                         <LogoutOutlined /> Выйти
                     </Text>
                 </Menu.Item>
             </Menu>
         )
-
-        const [settingsDrawerVisible, changeSettingsDrawerVisible] = useState(false)
-
-        const [toSearch, updateToSearch] = useState('')
-
-        const setCurrentDialog = (dialog: DialogType) => {
-            props.setCurrentDialog(dialog)
-            props.getMessages(dialog)
-        }
 
         return (
             <>
@@ -120,55 +154,47 @@ const Sidebar: React.FC<{
                             }}
                         />
                     </Dropdown>
-                    <Input
-                        placeholder="Кого будем искать?"
-                        prefix={
-                            <SearchOutlined style={{ color: 'rgba(112,117,121,0.8)' }}
-                            />
-                        }
-                        size='large'
-                        allowClear
-                        style={{
-                            borderRadius: '24px',
-                            lineHeight: '26px'
-                        }}
-                        onChange={(event) => {
-                            updateToSearch(event.currentTarget.value)
-                            props.getUsers(event.currentTarget.value)
-                        }}
-                    />
+                    <SearchReduxForm getUsers={props.getUsers} />
                 </div>
                 {
                     toSearch ?
                         <SearchResults
-                            isFetching={isFetching}
-                            dialogs={dialogs}
-                            setCurrentDialog={setCurrentDialog}
-                            currentDialog={currentDialog}
-                            toSearch={toSearch}
-                            users={users}
                             currentUser={currentUser}
-                        /> : <List
-                            dataSource={dialogs}
-                            renderItem={item => {
-                                let receiver = item.members.find((member: UserType) => member.username !== currentUser?.username)
-                                if (item.members.find(member => member._id === receiver?._id))
-                                    return <DialogsListItem
-                                        dialog={item}
-                                        setCurrentDialog={() => setCurrentDialog(item)}
-                                        currentDialog={currentDialog}
-                                        receiver={receiver}
-                                    />
-                            }}
-                        />
+                            toSearch={toSearch}
+                            isFetching={isFetching}
+                            users={users}
+                            dialogs={dialogs}
+                            setCurrentDialog={props.setCurrentDialog}
+                            currentDialog={currentDialog}
+                        /> : (
+                            dialogs.length > 0 ? (
+                                <List
+                                    dataSource={dialogs}
+                                    renderItem={item => {
+                                        let receiver = item.members.find((member: UserType) => member.username !== currentUser?.username)
+                                        if (item.members.find(member => member._id === receiver?._id))
+                                            return <DialogsListItem
+                                                dialog={item}
+                                                setCurrentDialog={() => props.setCurrentDialog(item)}
+                                                currentDialog={currentDialog}
+                                                receiver={receiver}
+                                            />
+                                    }}
+                                />
+                            ) : (
+                                <div className={style.feedbackContainer}>
+                                    <Empty description={false} />
+                                </div>
+                            )
+                        )
                 }
                 <SettingsDrawer
                     isFetching={isFetching}
                     settingsDrawerVisible={settingsDrawerVisible}
                     changeSettingsDrawerVisible={changeSettingsDrawerVisible}
                     changePassword={props.changePassword}
-                    passwordChangeMessage={passwordChangeMessage}
-                    updatePasswordChangeMessage={props.updatePasswordChangeMessage}
+                    notification={notification}
+                    updateNotification={props.updateNotification}
                 />
             </>
         )

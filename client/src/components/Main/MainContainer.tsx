@@ -13,8 +13,8 @@ type MapStatePropsType = {
 }
 
 type MapDispatchPropsType = {
-    getMessages: (currentDialog: DialogType) => void
     sendMessage: (currentDialog: DialogType, text: string) => void
+    getMessages: (currentDialog: DialogType) => void
 }
 
 type PropsType = MapStatePropsType & MapDispatchPropsType

@@ -3,13 +3,22 @@ import { authAPI } from '../../api/authAPI'
 import { AppStateType } from '../store'
 import { UserType } from './SidebarReducer'
 
-const TOGGLE_IS_FETCHING = 'TOGGLE-IS-FETCHING'
-const UPDATE_REGISTRATION_MESSAGE = 'UPDATE-REGISTRATION-MESSAGE'
+const TOGGLE_AUTH_IS_FETCHING = 'TOGGLE-AUTH-IS-FETCHING'
+const UPDATE_AUTH_NOTIFICATION = 'UPDATE-AUTH-NOTIFICATION'
 const SET_CURRENT_USER = 'SET-CURRENT-USER'
+
+export const SUCCESS = 'success'
+export const ERROR = 'error'
+
+export type AuthNotificationType = {
+    type: typeof SUCCESS | typeof ERROR
+    code: 0 | 1 | 2 | 41 | 99
+    message: string
+}
 
 let initialState = {
     isFetching: false,
-    registrationMessage: '',
+    notification: null as AuthNotificationType | null,
     currentUser: null as UserType | null
 }
 
@@ -17,15 +26,15 @@ export type InitialStateType = typeof initialState
 
 const authReducer = (state = initialState, action: ActionsTypes): InitialStateType => {
     switch(action.type) {
-        case TOGGLE_IS_FETCHING:
+        case TOGGLE_AUTH_IS_FETCHING:
             return {
                 ...state,
                 isFetching: !state.isFetching
             }
-        case UPDATE_REGISTRATION_MESSAGE:
+        case UPDATE_AUTH_NOTIFICATION:
             return {
                 ...state,
-                registrationMessage: action.value
+                notification: action.notification
             }
         case SET_CURRENT_USER:
             return {
@@ -38,22 +47,21 @@ const authReducer = (state = initialState, action: ActionsTypes): InitialStateTy
 
 export default authReducer
 
-type ActionsTypes = ToggleIsFetching | UpdateRegistrationMessageType | SetCurrentUserActionType
+type ActionsTypes = ToggleAuthIsFetchingActionType | UpdateAuthNotificationActionType | SetCurrentUserActionType
 
-type ToggleIsFetching = {
-    type: typeof TOGGLE_IS_FETCHING
+type ToggleAuthIsFetchingActionType = {
+    type: typeof TOGGLE_AUTH_IS_FETCHING
 }
-export const toggleIsFetching = (): ToggleIsFetching => ({ type: TOGGLE_IS_FETCHING })
+export const toggleIsAuthFetching = (): ToggleAuthIsFetchingActionType => ({ type: TOGGLE_AUTH_IS_FETCHING })
 
-type UpdateRegistrationMessageType = {
-    type: typeof UPDATE_REGISTRATION_MESSAGE
-    value: string
+type UpdateAuthNotificationActionType = {
+    type: typeof UPDATE_AUTH_NOTIFICATION
+    notification: AuthNotificationType | null
 }
-export const updateRegistrationMessage = (value: string): UpdateRegistrationMessageType => ({ 
-    type: UPDATE_REGISTRATION_MESSAGE, value })
+export const updateAuthNotification = (notification: AuthNotificationType | null): UpdateAuthNotificationActionType => ({ type: UPDATE_AUTH_NOTIFICATION, notification })
 
 type SetCurrentUserActionType = {
-    type: typeof SET_CURRENT_USER,
+    type: typeof SET_CURRENT_USER
     user: UserType | null
 }
 export const setCurrentUser = (user: UserType | null): SetCurrentUserActionType => ({ type: SET_CURRENT_USER, user })
@@ -63,14 +71,22 @@ type ThunkType = ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes>
 export const registration = (username: string, email: string): ThunkType => {
     return async (dispatch) => {
         try {
-            dispatch(toggleIsFetching())
+            dispatch(toggleIsAuthFetching())
             let data = await authAPI.registration(username, email)
-            dispatch(updateRegistrationMessage(data.message))
-            dispatch(toggleIsFetching())
+            dispatch(updateAuthNotification({
+                type: data.type,
+                code: data.code,
+                message: data.message
+            }))
+            dispatch(toggleIsAuthFetching())
         } catch (error: any) {
             console.log(error)
-            dispatch(updateRegistrationMessage(error.response.data.message))
-            dispatch(toggleIsFetching())
+            dispatch(updateAuthNotification({
+                type: error.response.data.type,
+                code: error.response.data.code,
+                message: error.response.data.message
+            }))
+            dispatch(toggleIsAuthFetching())
         }
     }
 }
@@ -78,36 +94,47 @@ export const registration = (username: string, email: string): ThunkType => {
 export const login = (username: string, password: string): ThunkType => {
     return async (dispatch) => {
         try {
-            dispatch(toggleIsFetching())
+            dispatch(toggleIsAuthFetching())
             let data = await authAPI.login(username, password)
             localStorage.setItem('token', data.token)
-            dispatch(toggleIsFetching())
+            dispatch(updateAuthNotification(null))
+            dispatch(toggleIsAuthFetching())
             dispatch(auth())
         } catch (error: any) {
             console.log(error)
-            dispatch(toggleIsFetching())
+            dispatch(updateAuthNotification({
+                type: error.response.data.type,
+                code: error.response.data.code,
+                message: error.response.data.message
+            }))
+            dispatch(toggleIsAuthFetching())
         }
     }
 }
 
 export const logout = (): ThunkType => {
-    return async (dispatch) => {
+    return async () => {
         localStorage.removeItem('token')
-        dispatch(setCurrentUser(null))
+        window.location.reload()
     }
 }
 
 export const auth = (): ThunkType => {
     return async (dispatch) => {
         try {
-            dispatch(toggleIsFetching())
+            dispatch(toggleIsAuthFetching())
             let data = await authAPI.auth()
-            dispatch(toggleIsFetching())
             dispatch(setCurrentUser(data.user))
-        } catch (error) {
+            dispatch(toggleIsAuthFetching())
+        } catch (error: any) {
             console.log(error)
             localStorage.removeItem('token')
-            dispatch(toggleIsFetching())
+            dispatch(updateAuthNotification({
+                type: error.response.data.type,
+                code: error.response.data.code,
+                message: error.response.data.message
+            }))
+            dispatch(toggleIsAuthFetching())
         }
     }
 }

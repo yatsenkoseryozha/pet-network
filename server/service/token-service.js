@@ -6,7 +6,7 @@ class TokenService {
             id,
             username
         }
-        return jwt.sign(payload, process.env.SECRET, {expiresIn: "24h"})
+        return jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "24h"})
     }
 }
 

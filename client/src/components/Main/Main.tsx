@@ -18,47 +18,47 @@ type NewMessageFormDataType = {
     newMessage: string
 }
 
-const NewMessageForm: React.FC<InjectedFormProps<NewMessageFormDataType, NewMessagePropsType> & NewMessagePropsType> = ({
-    currentDialog,
-    ...props
-}) => {
-    return (
-        <form className={style.newMessageForm} onSubmit={props.handleSubmit} >
-            <Button
+class NewMessageForm extends React.Component<InjectedFormProps<NewMessageFormDataType, NewMessagePropsType> & NewMessagePropsType, {}> {
+    renderField(props: any) {
+        return (
+            <Input
+                {...props.input}
+                placeholder="Новое сообщение"
                 size='large'
-                shape='circle'
                 style={{
-                    border: 'none',
-                    marginRight: '9px',
-                    boxShadow: 'none'
+                    width: '100%', height: '42px',
+                    padding: '10px',
+                    borderRadius: '48px',
+                    lineHeight: '42px'
                 }}
-                icon={
-                    <PaperClipOutlined
-                        style={{
-                            fontSize: '24px',
-                            color: 'rgba(112,117,121,0.8)'
-                        }}
-                    />
-                }
             />
-            <Field
-                name='newMessage'
-                component={
-                    (props: any) => <Input
-                        {...props.input}
-                        placeholder="Новое сообщение"
-                        size='large'
-                        style={{
-                            width: '100%', height: '42px',
-                            padding: '10px',
-                            borderRadius: '48px',
-                            lineHeight: '42px'
-                        }}
-                    />
-                }
-            />
-        </form>
-    )
+        )
+    }
+
+    render() {
+        return (
+            <form className={style.newMessageForm} onSubmit={this.props.handleSubmit} >
+                <Button
+                    size='large'
+                    shape='circle'
+                    style={{
+                        border: 'none',
+                        marginRight: '9px',
+                        boxShadow: 'none'
+                    }}
+                    icon={
+                        <PaperClipOutlined
+                            style={{
+                                fontSize: '24px',
+                                color: 'rgba(112,117,121,0.8)'
+                            }}
+                        />
+                    }
+                />
+                <Field name='newMessage' component={this.renderField} />
+            </form>
+        )
+    }
 }
 
 const NewMessageReduxForm = reduxForm<NewMessageFormDataType, NewMessagePropsType>({
@@ -71,6 +71,7 @@ const Main: React.FC<{
     currentDialog: DialogType | null
     messages: Array<MessageType>
     sendMessage: (currentDialog: DialogType, newMessage: string) => void
+    getMessages: (currentDialog: DialogType) => void
 }> = ({
     currentUser,
     currentDialog,
@@ -107,12 +108,20 @@ const Main: React.FC<{
                                 }}
                             />
                             <div className={style.messagesContainer}>
-                                <Messages currentUser={currentUser} messages={messages} />
+                                <Messages
+                                    currentUser={currentUser}
+                                    currentDialog={currentDialog}
+                                    getMessages={props.getMessages}
+                                    messages={messages}
+                                />
                             </div>
                             <div className={style.newMessageFormContainer}>
                                 <NewMessageReduxForm
                                     currentDialog={currentDialog}
-                                    onSubmit={(formData: NewMessageFormDataType) => props.sendMessage(currentDialog, formData.newMessage)}
+                                    onSubmit={(formData: NewMessageFormDataType) => {
+                                        if (formData.newMessage)
+                                            props.sendMessage(currentDialog, formData.newMessage)
+                                    }}
                                 />
                             </div>
                         </>

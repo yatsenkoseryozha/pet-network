@@ -1,62 +1,98 @@
 import React, { useState } from 'react'
 import { Input, Button, Menu, Drawer, Form, Alert } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
+import { SidebarNotificationType } from '../../../../../redux/reducers/SidebarReducer'
 
 const { SubMenu } = Menu
 
 const PasswordChangeDrawer: React.FC<{
     isFetching: boolean
     userPasswordDrawerVisible: boolean
-    passwordChangeMessage: string
+    notification: SidebarNotificationType | null
+    changePassword: (currentPassword: string, newPassword: string, callback: any) => void
+    updateNotification: (notification: SidebarNotificationType | null) => void
     onClose: () => void
-    changePassword: (currentPassword: string, newPassword: string) => void
-    updatePasswordChangeMessage: (value: string) => void
 }> = ({
     isFetching,
     userPasswordDrawerVisible,
-    passwordChangeMessage,
+    notification,
     ...props
 }) => {
+        const [passwordChangeForm] = Form.useForm()
+
         return (
             <Drawer
                 title="Смена пароля"
                 placement='left'
-                width={370}
-                onClose={props.onClose}
+                width={310}
                 visible={userPasswordDrawerVisible}
-                style={{ position: 'absolute' }}
+                onClose={() => {
+                    passwordChangeForm.resetFields()
+                    props.onClose()
+                }}
             >
                 <Form
+                    form={passwordChangeForm}
                     name='passwordChange'
-                    initialValues={{ remember: true }}
                     onFinish={(values: {
                         currentPassword: string
                         newPassword: string
                     }) => {
-                        props.changePassword(values.currentPassword, values.newPassword)
+                        props.changePassword(values.currentPassword, values.newPassword, passwordChangeForm.resetFields)
                     }}
-                    autoComplete='off'
                 >
-                    <Form.Item name='currentPassword' rules={[{ required: true, message: "Обязательное поле!" }]}>
-                        <Input.Password placeholder="Текущий пароль" />
+                    <Form.Item
+                        name='currentPassword'
+                        validateStatus={notification?.code === 99 ? '' : notification?.type}
+                        rules={[
+                            {
+                                required: true,
+                                message: "Обязательное поле!"
+                            }
+                        ]}
+                    >
+                        <Input
+                            placeholder="Текущий пароль"
+                            type='password'
+                            allowClear
+                            onChange={() => notification && props.updateNotification(null)}
+                        />
                     </Form.Item>
-
-                    <Form.Item name='newPassword' rules={[{ required: true, message: "Обязательное поле!" }]}>
-                        <Input.Password placeholder="Новый пароль" />
+                    <Form.Item
+                        name='newPassword'
+                        validateStatus={notification?.code === 99 ? '' : notification?.type}
+                        rules={[
+                            {
+                                required: true,
+                                message: "Обязательное поле!"
+                            }
+                        ]}
+                    >
+                        <Input
+                            placeholder="Новый пароль"
+                            type='password'
+                            allowClear
+                            onChange={() => notification && props.updateNotification(null)}
+                        />
                     </Form.Item>
-
                     <Form.Item>
-                        <Button type='primary' htmlType='submit' loading={isFetching ? true : false}>
+                        <Button 
+                            type='primary' 
+                            htmlType='submit' 
+                            loading={isFetching}
+                            style={{
+                                width: '100%'
+                            }}
+                        >
                             Подтвердить
                         </Button>
                     </Form.Item>
                 </Form>
                 {
-                    passwordChangeMessage && <Alert 
-                        type="success" 
-                        closable 
-                        message={passwordChangeMessage}
-                        onClose={() => props.updatePasswordChangeMessage('')}
+                    notification && <Alert
+                        type={notification.type}
+                        message={notification.message}
+                        showIcon
                     />
                 }
             </Drawer>
@@ -66,17 +102,20 @@ const PasswordChangeDrawer: React.FC<{
 const SettingsDrawer: React.FC<{
     isFetching: boolean
     settingsDrawerVisible: boolean
-    passwordChangeMessage: string
+    notification: SidebarNotificationType | null
+    updateNotification: (notification: SidebarNotificationType | null) => void
     changeSettingsDrawerVisible: (value: boolean) => void
-    changePassword: (currentPassword: string, newPassword: string) => void
-    updatePasswordChangeMessage: (value: string) => void
+    changePassword: (currentPassword: string, newPassword: string, callback: any) => void
 }> = ({
     isFetching,
     settingsDrawerVisible,
-    passwordChangeMessage,
+    notification,
     ...props
 }) => {
-        const [userPasswordDrawerVisible, changeUserPasswordDrawerVisible] = useState(false)
+    const [openKeys, setOpenKeys] = useState('')
+    const [selectedKeys, setSelectedKeys] = useState('')
+
+    const [userPasswordDrawerVisible, changeUserPasswordDrawerVisible] = useState(false)
 
         return (
             <>
@@ -86,14 +125,28 @@ const SettingsDrawer: React.FC<{
                     width={370}
                     bodyStyle={{ padding: '0px' }}
                     visible={settingsDrawerVisible}
-                    onClose={() => props.changeSettingsDrawerVisible(false)}
+                    onClose={() => {
+                        setOpenKeys('')
+                        setSelectedKeys('')
+                        props.changeSettingsDrawerVisible(false)
+                    }}
                 >
-                    <Menu mode='inline' style={{ width: 370 }}>
-                        <SubMenu key='userSettings' icon={<UserOutlined />} title="Настройки профиля">
+                    <Menu
+                        mode='inline'
+                        selectedKeys={[selectedKeys]}
+                        openKeys={[openKeys]}
+                        style={{ width: '100%' }}
+                    >
+                        <SubMenu
+                            title="Настройки профиля"
+                            key='userSettings'
+                            icon={<UserOutlined />}
+                            onTitleClick={() => setOpenKeys('userSettings')}
+                        >
                             <Menu.Item
                                 key='passwordChange'
                                 onClick={() => {
-                                    props.changeSettingsDrawerVisible(false)
+                                    setSelectedKeys('passwordChange')
                                     changeUserPasswordDrawerVisible(true)
                                 }}
                             >
@@ -101,18 +154,18 @@ const SettingsDrawer: React.FC<{
                             </Menu.Item>
                         </SubMenu>
                     </Menu>
+                    <PasswordChangeDrawer
+                        isFetching={isFetching}
+                        userPasswordDrawerVisible={userPasswordDrawerVisible}
+                        changePassword={props.changePassword}
+                        notification={notification}
+                        updateNotification={props.updateNotification}
+                        onClose={() => {
+                            props.updateNotification(null)
+                            changeUserPasswordDrawerVisible(false)
+                        }}
+                    />
                 </Drawer>
-                <PasswordChangeDrawer
-                    isFetching={isFetching}
-                    userPasswordDrawerVisible={userPasswordDrawerVisible}
-                    onClose={() => {
-                        changeUserPasswordDrawerVisible(false)
-                        props.changeSettingsDrawerVisible(true)
-                    }}
-                    changePassword={props.changePassword}
-                    passwordChangeMessage={passwordChangeMessage}
-                    updatePasswordChangeMessage={props.updatePasswordChangeMessage}
-                />
             </>
         )
     }

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { ERROR, SUCCESS } from '../redux/reducers/AuthReducer'
 import { MessageType } from '../redux/reducers/MainReducer'
 import { DialogType } from '../redux/reducers/SidebarReducer'
 
@@ -7,10 +8,15 @@ export const mainInstance = axios.create({
 })
 
 type GetMessagesAPIType = {
+    type: typeof ERROR | typeof SUCCESS
+    code: 0 | 41 | 43 | 99
+    message: string
     messages: Array<MessageType>
 }
 
 type SendMessageAPIType = {
+    type: typeof ERROR | typeof SUCCESS
+    code: 0 | 41 | 43 | 99
     message: string
 }
 

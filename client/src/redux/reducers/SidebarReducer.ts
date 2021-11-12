@@ -1,13 +1,19 @@
 import { ThunkAction } from "redux-thunk"
 import { sidebarAPI } from "../../api/sidebarAPI"
 import { AppStateType } from "../store"
+import { ERROR, SUCCESS } from "./AuthReducer"
 
+const TOGGLE_SIDEBAR_IS_FETCHING = 'TOGGLE-SIDEBAR-IS-FETCHING'
+const UPDATE_SIDEBAR_NOTIFICATION = 'UPDATE-SIDEBAR-NOTIFICATION'
+const GET_USERS = 'GET-USERS'
 const GET_DIALOGS = 'GET-DIALOGS'
 const SET_CURRENT_DIALOG = 'SET-CURRENT-DIALOG'
-const TOGGLE_IS_FETCHING = 'TOGGLE-IS-FETCHING'
-const GET_USERS = 'GET-USERS'
-const UPDATE_PASSWORD_CHANGE_MESSAGE = 'UPDATE-PASSWORD-CHANGE-MESSAGE'
 
+export type SidebarNotificationType = {
+    type: typeof SUCCESS | typeof ERROR
+    code: 0 | 1 | 41 | 99
+    message: string
+}
 
 export type UserType = {
     _id: string,
@@ -25,16 +31,31 @@ export type DialogType = {
 
 const initialState = {
     isFetching: false,
+    notification: null as SidebarNotificationType | null,
     users: [] as Array<UserType>,
     dialogs: [] as Array<DialogType>,
     currentDialog: null as DialogType | null,
-    passwordChangeMessage: ''
 }
 
 export type InitialStateType = typeof initialState
 
 const sidebarReducer = (state = initialState, action: ActionsTypes): InitialStateType => {
     switch (action.type) {
+        case TOGGLE_SIDEBAR_IS_FETCHING:
+            return {
+                ...state,
+                isFetching: !state.isFetching
+            }
+        case UPDATE_SIDEBAR_NOTIFICATION:
+            return {
+                ...state,
+                notification: action.notification
+            }
+        case GET_USERS:
+            return {
+                ...state,
+                users: action.users
+            }
         case GET_DIALOGS:
             return {
                 ...state,
@@ -45,37 +66,32 @@ const sidebarReducer = (state = initialState, action: ActionsTypes): InitialStat
                 ...state,
                 currentDialog: { ...action.dialog }
             }
-        case TOGGLE_IS_FETCHING:
-            return {
-                ...state,
-                isFetching: !state.isFetching
-            }
-        case GET_USERS:
-            let filteredUsers: Array<UserType> = []
-            action.users.forEach((user: UserType) => {
-                let hasAlready = false
-                state.dialogs.forEach((dialog: DialogType) => {
-                    if (dialog.members.some((member: UserType) => member.username === user.username))
-                        hasAlready = true
-                })
-                if (!hasAlready) filteredUsers.push(user)
-            })
-            return {
-                ...state,
-                users: filteredUsers
-            }
-        case UPDATE_PASSWORD_CHANGE_MESSAGE: 
-            return {
-                ...state,
-                passwordChangeMessage: action.value
-            }
         default: return state
     }
 }
 
 export default sidebarReducer
 
-type ActionsTypes = GetUsersActionType | GetDialogsActionType | SetCurrentDialogActionType | ToggleIsFetchingActionType | UpdatePasswordChangeMessage
+type ActionsTypes = GetUsersActionType | GetDialogsActionType | SetCurrentDialogActionType | ToggleSidebarIsFetchingActionType | UpdateSidebarNotificationActionType
+
+type ToggleSidebarIsFetchingActionType = {
+    type: typeof TOGGLE_SIDEBAR_IS_FETCHING
+}
+export const toggleSidebarIsFetching = (): ToggleSidebarIsFetchingActionType => ({ type: TOGGLE_SIDEBAR_IS_FETCHING })
+
+type UpdateSidebarNotificationActionType = {
+    type: typeof UPDATE_SIDEBAR_NOTIFICATION
+    notification: SidebarNotificationType | null
+}
+export const updateSidebarNotification = (notification: SidebarNotificationType | null): UpdateSidebarNotificationActionType => ({
+    type: UPDATE_SIDEBAR_NOTIFICATION, notification
+})
+
+type GetUsersActionType = {
+    type: typeof GET_USERS
+    users: Array<UserType>
+}
+export const getUsersActionCreator = (users: Array<UserType>): GetUsersActionType => ({ type: GET_USERS, users })
 
 type GetDialogsActionType = {
     type: typeof GET_DIALOGS
@@ -89,60 +105,70 @@ export type SetCurrentDialogActionType = {
 }
 export const setCurrentDialog = (dialog: DialogType): SetCurrentDialogActionType => ({ type: SET_CURRENT_DIALOG, dialog })
 
-type ToggleIsFetchingActionType = {
-    type: typeof TOGGLE_IS_FETCHING
-}
-export const toggleIsFetching = (): ToggleIsFetchingActionType => ({ type: TOGGLE_IS_FETCHING })
-
-type GetUsersActionType = {
-    type: typeof GET_USERS
-    users: Array<UserType>
-}
-export const getUsersActionCreator = (users: Array<UserType>): GetUsersActionType => ({ type: GET_USERS, users })
-
-type UpdatePasswordChangeMessage = {
-    type: typeof UPDATE_PASSWORD_CHANGE_MESSAGE
-    value: string
-}
-export const updatePasswordChangeMessage = (value: string): UpdatePasswordChangeMessage => ({ type: UPDATE_PASSWORD_CHANGE_MESSAGE, value })
-
 type ThunkType = ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes>
-
-export const getDialogs = (): ThunkType => {
-    return async (dispatch) => {
-        try {
-            let data = await sidebarAPI.getDialogs()
-            dispatch(getDialogsActionCreator(data.conversations))
-        } catch (error) {
-            console.log(error)
-        }
-    }
-}
 
 export const getUsers = (username: string): ThunkType => {
     return async (dispatch) => {
         try {
             if (username) {
-                dispatch(toggleIsFetching())
+                dispatch(toggleSidebarIsFetching())
                 let data = await sidebarAPI.getUsers(username.toLowerCase())
-                dispatch(toggleIsFetching())
                 dispatch(getUsersActionCreator(data.users))
+                dispatch(updateSidebarNotification(null))
+                dispatch(toggleSidebarIsFetching())
             } else dispatch(getUsersActionCreator([]))
-        } catch (error) {
+        } catch (error: any) {
             console.log(error)
+            dispatch(updateSidebarNotification({
+                type: error.response.data.type,
+                code: error.response.data.code,
+                message: error.response.data.message
+            }))
+            dispatch(toggleSidebarIsFetching())
         }
     }
 }
 
-export const changePassword = (currentPassword: string, newPassword: string): ThunkType => {
+export const getDialogs = (): ThunkType => {
     return async (dispatch) => {
         try {
-            dispatch(toggleIsFetching())
-            let data = await sidebarAPI.changePassword(currentPassword, newPassword)
-            dispatch(toggleIsFetching())
-            dispatch(updatePasswordChangeMessage(data.message))
-        } catch (error) {
+            dispatch(toggleSidebarIsFetching())
+            let data = await sidebarAPI.getDialogs()
+            dispatch(getDialogsActionCreator(data.conversations))
+            dispatch(updateSidebarNotification(null))
+            dispatch(toggleSidebarIsFetching())
+        } catch (error: any) {
             console.log(error)
+            dispatch(updateSidebarNotification({
+                type: error.response.data.type,
+                code: error.response.data.code,
+                message: error.response.data.message
+            }))
+            dispatch(toggleSidebarIsFetching())
+        }
+    }
+}
+
+export const changePassword = (currentPassword: string, newPassword: string, callback: any): ThunkType => {
+    return async (dispatch) => {
+        try {
+            dispatch(toggleSidebarIsFetching())
+            let data = await sidebarAPI.changePassword(currentPassword, newPassword)
+            dispatch(updateSidebarNotification({
+                type: data.type,
+                code: data.code,
+                message: data.message
+            }))
+            dispatch(toggleSidebarIsFetching())
+            callback()
+        } catch (error: any) {
+            console.log(error)
+            dispatch(updateSidebarNotification({
+                type: error.response.data.type,
+                code: error.response.data.code,
+                message: error.response.data.message
+            }))
+            dispatch(toggleSidebarIsFetching())
         }
     }
 }

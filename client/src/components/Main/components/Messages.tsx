@@ -1,54 +1,52 @@
 import React, { useEffect, useRef } from 'react'
 import { MessageType } from '../../../redux/reducers/MainReducer'
-import { UserType } from '../../../redux/reducers/SidebarReducer'
+import { DialogType, UserType } from '../../../redux/reducers/SidebarReducer'
 import style from '../Main.module.css'
 
 const Messages: React.FC<{
     currentUser: UserType | null
+    currentDialog: DialogType
     messages: Array<MessageType>
-}> = ({ 
+    getMessages: (currentDialog: DialogType) => void
+}> = ({
     currentUser,
-    messages 
+    currentDialog,
+    messages,
+    ...props
 }) => {
-    const scrollRef = useRef<HTMLDivElement | null>(null)
+        const scrollRef = useRef<HTMLDivElement | null>(null)
 
-    useEffect(() => scrollRef.current?.scrollIntoView(), [messages])
+        useEffect(() => scrollRef.current?.scrollIntoView(), [messages])
 
-    return (
-        <div className={style.messages}>
-            {
-                messages?.map((message: MessageType, index: number) => {
-                    return (
-                        <div
-                            className={style.messageContainer}
-                            ref={scrollRef}
-                            key={index}
-                            style={
-                                message.sender._id === currentUser?._id ? {
-                                    textAlign: 'right'
-                                } : {
-                                    textAlign: 'left'
-                                }
-                            }
-                        >
-                            <span
-                                className={style.message}
-                                style={
-                                    message.sender._id === currentUser?._id ? {
-                                        backgroundColor: 'rgb(238,255,222)'
-                                    } : {
-                                        backgroundColor: '#FFFFFF'
-                                    }
-                                }
+        useEffect(() => props.getMessages(currentDialog), [currentDialog])
+
+        return (
+            <div className={style.messages}>
+                {
+                    messages?.map((message: MessageType, index: number) => {
+                        return (
+                            <div
+                                className={style.messageContainer}
+                                ref={scrollRef}
+                                key={index}
+                                style={{
+                                    textAlign: `${message.sender._id === currentUser?._id ? 'right' : 'left'}`
+                                }}
                             >
-                                {message.text}
-                            </span>
-                        </div>
-                    )
-                })
-            }
-        </div>
-    )
-}
+                                <span
+                                    className={style.message}
+                                    style={{
+                                        backgroundColor: `${message.sender._id === currentUser?._id ? 'rgb(238,255,222)' : '#FFFFFF'}`
+                                    }}
+                                >
+                                    {message.text}
+                                </span>
+                            </div>
+                        )
+                    })
+                }
+            </div>
+        )
+    }
 
 export default Messages

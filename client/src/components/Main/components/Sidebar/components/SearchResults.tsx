@@ -22,45 +22,47 @@ const SearchResults: React.FC<{
     currentDialog,
     ...props
 }) => {
+        let filteredDialogs = dialogs.find(dialog => dialog.members.find(member =>
+            member._id !== currentUser?._id && member.username.toLowerCase().indexOf(toSearch.toLowerCase()) === 0))
+
         return (
-            <>
+            isFetching ? (
+                <div className={style.feedbackContainer}>
+                    <Spin size="large" />
+                </div>
+            ) : <>
                 {
-                    isFetching ? (
-                        <div className={style.feedbackContainer}>
-                            <Spin size="large" />
-                        </div>
-                    ) : (
-                        (
-                            dialogs.find(dialog => dialog.members.find(member =>
-                                member._id !== currentUser?._id && member.username.toLowerCase().indexOf(toSearch.toLowerCase()) === 0)) && <>
-                                <Divider orientation="left">ДИАЛОГИ</Divider>
-                                <List
-                                    dataSource={dialogs}
-                                    renderItem={item => {
-                                        let receiver = item.members.find((member: UserType) => member.username !== currentUser?.username)
-                                        if (item.members.find(member =>
-                                            member._id === receiver?._id && (member.username.toLowerCase().indexOf(toSearch.toLowerCase()) === 0)))
-                                            return <DialogsListItem
-                                                dialog={item}
-                                                setCurrentDialog={() => props.setCurrentDialog(item)}
-                                                currentDialog={currentDialog}
-                                                receiver={receiver}
-                                            />
-                                    }}
-                                />
-                            </>
-                        ) || (
-                            users.length > 0 && <>
-                                <Divider orientation="left">ПОЛЬЗОВАТЕЛИ</Divider>
-                                <List
-                                    dataSource={users}
-                                    renderItem={item => (
+                    filteredDialogs && <>
+                        <Divider orientation="left">ДИАЛОГИ</Divider>
+                        <List
+                            dataSource={dialogs}
+                            renderItem={item => {
+                                let receiver = item.members.find((member: UserType) => member.username !== currentUser?.username)
+                                if (item.members.find(member => member._id === receiver?._id && (member.username.toLowerCase().indexOf(toSearch.toLowerCase()) === 0)))
+                                    return <DialogsListItem
+                                        dialog={item}
+                                        setCurrentDialog={() => props.setCurrentDialog(item)}
+                                        currentDialog={currentDialog}
+                                        receiver={receiver}
+                                    />
+                            }}
+                        />
+                    </>
+                }
+                {
+                    users.length > 0 && <>
+                        <Divider orientation="left">ПОЛЬЗОВАТЕЛИ</Divider>
+                        <List
+                            dataSource={users}
+                            renderItem={user => {
+                                if (!dialogs.find(dialog => dialog.members.find(member => member._id === user._id)))
+                                    return (
                                         <List.Item
                                             className={style.dialog}
                                             style={{ padding: '15px' }}
                                             onClick={() => props.setCurrentDialog({
                                                 _id: null,
-                                                members: [item, currentUser as UserType],
+                                                members: [user, currentUser as UserType],
                                                 lastMessage: null
                                             })}
                                         >
@@ -68,7 +70,7 @@ const SearchResults: React.FC<{
                                                 avatar={<Avatar size={54} icon={<UserOutlined />} />}
                                                 title={
                                                     <div className={style.title}>
-                                                        {item.username}
+                                                        {user.username}
                                                     </div>
                                                 }
                                                 description={
@@ -78,14 +80,16 @@ const SearchResults: React.FC<{
                                                 }
                                             />
                                         </List.Item>
-                                    )}
-                                />
-                            </>
-                        ) || (
-                            <div className={style.feedbackContainer}>
-                                <Empty description={false} />
-                            </div>
-                        )
+                                    )
+                            }}
+                        />
+                    </>
+                }
+                {
+                    !filteredDialogs && users.length === 0 && (
+                        <div className={style.feedbackContainer}>
+                            <Empty description={false} />
+                        </div>
                     )
                 }
             </>

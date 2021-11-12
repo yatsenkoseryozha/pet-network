@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { mainInstance } from './mainAPI'
+import { SUCCESS, ERROR } from '../redux/reducers/AuthReducer'
 import { UserType } from '../redux/reducers/SidebarReducer'
 
 const authInstace = axios.create({
@@ -7,14 +8,22 @@ const authInstace = axios.create({
 })
 
 type RegistrationAPIType = {
+    type: typeof SUCCESS | typeof ERROR
+    code: 0 | 1 | 2 | 99
     message: string
 }
 
 type LoginAPIType = {
+    type: typeof SUCCESS | typeof ERROR
+    code: 0 | 1 | 99
+    message: string
     token: string
 }
 
 type AuthAPIType = {
+    type: typeof SUCCESS | typeof ERROR
+    code: 0 | 41 | 99
+    message: string
     user: UserType
 }
 
