@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Field, InjectedFormProps, reduxForm, reset } from 'redux-form'
 import { Input, Layout, PageHeader, Avatar, Button } from 'antd'
-import { PaperClipOutlined, UserOutlined } from '@ant-design/icons';
+import { PaperClipOutlined, UserOutlined, LeftOutlined } from '@ant-design/icons';
 import SidebarContainer from './components/Sidebar/SidebarContainer'
 import Messages from './components/Messages'
 import style from './Main.module.css'
@@ -69,23 +69,50 @@ const NewMessageReduxForm = reduxForm<NewMessageFormDataType, NewMessagePropsTyp
 const Main: React.FC<{
     currentUser: UserType | null
     currentDialog: DialogType | null
+    isFetching: boolean
     messages: Array<MessageType>
+    setCurrentDialog: (dialog: DialogType | null) => void
     sendMessage: (currentDialog: DialogType, newMessage: string) => void
     getMessages: (currentDialog: DialogType) => void
 }> = ({
     currentUser,
     currentDialog,
+    isFetching,
     messages,
     ...props
 }) => {
+        const [siderCollapsible, setSiderCollapsible] = useState(false)
+        const [siderCollapsed, setSiderCollapsed] = useState(false)
+
         let receiver = currentDialog?.members.find((member: UserType) => member.username !== currentUser?.username)
 
         return (
             <Layout>
-                <Sider width='25vw' theme='light'>
-                    <SidebarContainer />
+                <Sider
+                    width={siderCollapsible ? '100%' : 370}
+                    theme='light'
+                    collapsible={siderCollapsible}
+                    collapsed={siderCollapsed}
+                    collapsedWidth={0}
+                    zeroWidthTriggerStyle={{
+                        display: 'none'
+                    }}
+                    breakpoint='md'
+                    onBreakpoint={broken => {
+                        setSiderCollapsible(broken)
+
+                        if (currentDialog)
+                            setSiderCollapsed(broken)
+                    }}
+                >
+                    <SidebarContainer siderCollapsible={siderCollapsible} siderCollapsed={siderCollapsed} setSiderCollapsed={setSiderCollapsed} />
                 </Sider>
-                <Content className={style.content}>
+                <Content 
+                    className={style.content}
+                    style={{
+                        borderLeft: `${currentDialog ? '1px solid rgb(218,220,224)' : 'none'}` 
+                    }}
+                >
                     {
                         currentDialog && <>
                             <PageHeader
@@ -106,12 +133,18 @@ const Main: React.FC<{
                                     padding: '4.5px 13px 4.5px 24px',
                                     backgroundColor: '#FFFFFF'
                                 }}
+                                backIcon={siderCollapsible ? <LeftOutlined /> : false}
+                                onBack={() => {
+                                    setSiderCollapsed(false)
+                                    props.setCurrentDialog(null)
+                                }}
                             />
                             <div className={style.messagesContainer}>
                                 <Messages
                                     currentUser={currentUser}
                                     currentDialog={currentDialog}
                                     getMessages={props.getMessages}
+                                    isFetching={isFetching}
                                     messages={messages}
                                 />
                             </div>

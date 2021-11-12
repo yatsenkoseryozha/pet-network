@@ -1,7 +1,10 @@
+.sider {
+    width: 25vw;
+}
+
 .content {
     display: flex;
     flex-direction: column;
-    border-left: 1px solid rgb(218,220,224);
     background-image: radial-gradient(circle, #b8db9b 20%, #dee7a7 100%);
 }
 
@@ -91,4 +94,11 @@
     justify-content: space-between;
     align-items: center;
     width: 696px;
+}
+
+@media (max-width: 1200px) {
+    .messagesContainer,
+    .newMessageFormContainer {
+        padding: 0 24px;
+    }
 }

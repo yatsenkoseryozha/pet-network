@@ -14,6 +14,12 @@ import { logout } from '../../../../redux/reducers/AuthReducer'
 import { AppStateType } from '../../../../redux/store'
 import Sidebar from './Sidebar'
 
+type OwnStatePropsType = {
+    siderCollapsible: boolean
+    siderCollapsed: boolean
+    setSiderCollapsed: (value: boolean) => void
+}
+
 type MapStatePropsType = {
     currentUser: UserType | null
     toSearch: string
@@ -34,7 +40,7 @@ type MapDispatchPropsType = {
     logout: () => void
 }
 
-type PropsType = MapStatePropsType & MapDispatchPropsType
+type PropsType = MapStatePropsType & MapDispatchPropsType & OwnStatePropsType
 
 class SidebarContainer extends React.Component<PropsType> {
     componentDidMount() {
@@ -46,8 +52,15 @@ class SidebarContainer extends React.Component<PropsType> {
         })
     }
 
+    setCurrentDialog = (dialog: DialogType) => {
+        this.props.setCurrentDialog(dialog)
+
+        if (this.props.siderCollapsible)
+            this.props.setSiderCollapsed(true)
+    }
+
     render() {
-        return <Sidebar {...this.props} />
+        return <Sidebar {...this.props} setCurrentDialog={this.setCurrentDialog} />
     }
 }
 

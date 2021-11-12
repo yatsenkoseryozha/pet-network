@@ -28,7 +28,7 @@ const SearchResults: React.FC<{
         return (
             isFetching ? (
                 <div className={style.feedbackContainer}>
-                    <Spin size="large" />
+                    <Spin size='large' />
                 </div>
             ) : <>
                 {

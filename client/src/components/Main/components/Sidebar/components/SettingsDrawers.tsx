@@ -103,6 +103,7 @@ const SettingsDrawer: React.FC<{
     isFetching: boolean
     settingsDrawerVisible: boolean
     notification: SidebarNotificationType | null
+    siderCollapsible: boolean
     updateNotification: (notification: SidebarNotificationType | null) => void
     changeSettingsDrawerVisible: (value: boolean) => void
     changePassword: (currentPassword: string, newPassword: string, callback: any) => void
@@ -110,6 +111,7 @@ const SettingsDrawer: React.FC<{
     isFetching,
     settingsDrawerVisible,
     notification,
+    siderCollapsible,
     ...props
 }) => {
     const [openKeys, setOpenKeys] = useState('')
@@ -122,7 +124,7 @@ const SettingsDrawer: React.FC<{
                 <Drawer
                     title='Настройки'
                     placement='left'
-                    width={370}
+                    width={siderCollapsible ? '100%' : 370}
                     bodyStyle={{ padding: '0px' }}
                     visible={settingsDrawerVisible}
                     onClose={() => {

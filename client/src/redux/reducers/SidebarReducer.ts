@@ -64,7 +64,7 @@ const sidebarReducer = (state = initialState, action: ActionsTypes): InitialStat
         case SET_CURRENT_DIALOG:
             return {
                 ...state,
-                currentDialog: { ...action.dialog }
+                currentDialog: action.dialog
             }
         default: return state
     }
@@ -101,9 +101,9 @@ export const getDialogsActionCreator = (dialogs: Array<DialogType>): GetDialogsA
 
 export type SetCurrentDialogActionType = {
     type: typeof SET_CURRENT_DIALOG
-    dialog: DialogType
+    dialog: DialogType | null
 }
-export const setCurrentDialog = (dialog: DialogType): SetCurrentDialogActionType => ({ type: SET_CURRENT_DIALOG, dialog })
+export const setCurrentDialog = (dialog: DialogType | null): SetCurrentDialogActionType => ({ type: SET_CURRENT_DIALOG, dialog })
 
 type ThunkType = ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes>
 

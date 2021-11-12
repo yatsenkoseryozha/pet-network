@@ -99,6 +99,8 @@ const Sidebar: React.FC<{
     dialogs: Array<DialogType>
     currentDialog: DialogType | null
     notification: SidebarNotificationType | null
+    siderCollapsible: boolean
+    siderCollapsed: boolean
     updateNotification: (notification: SidebarNotificationType | null) => void
     getUsers: (username: string) => void
     setCurrentDialog: (dialog: DialogType) => void
@@ -113,6 +115,8 @@ const Sidebar: React.FC<{
     dialogs,
     currentDialog,
     notification,
+    siderCollapsible,
+    siderCollapsed,
     ...props
 }) => {
         const [settingsDrawerVisible, changeSettingsDrawerVisible] = useState(false)
@@ -133,7 +137,12 @@ const Sidebar: React.FC<{
         )
 
         return (
-            <>
+            <div 
+                style={{ 
+                    display: `${siderCollapsed ? 'none' : 'block'}`,
+                    height: '100%'
+                }}
+            >
                 <div className={style.searchContainer}>
                     <Dropdown overlay={DropdownMenu} placement="bottomRight" trigger={['click']}>
                         <Button
@@ -195,8 +204,9 @@ const Sidebar: React.FC<{
                     changePassword={props.changePassword}
                     notification={notification}
                     updateNotification={props.updateNotification}
+                    siderCollapsible={siderCollapsible}
                 />
-            </>
+            </div>
         )
     }
 
