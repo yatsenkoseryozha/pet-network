@@ -1,7 +1,3 @@
-.sider {
-    width: 25vw;
-}
-
 .content {
     display: flex;
     flex-direction: column;
@@ -55,7 +51,8 @@
 .messages {
     display: flex;
     flex-direction: column;
-    width: 696px; height: auto;
+    width: 100%; height: auto;
+    max-width: 696px;
 }
 
 .messageContainer {
@@ -93,7 +90,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 696px;
+    width: 100%;
+    max-width: 696px;
 }
 
 @media (max-width: 1200px) {
