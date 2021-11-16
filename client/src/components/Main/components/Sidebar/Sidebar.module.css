@@ -7,13 +7,6 @@
     width: 100%;
 }
 
-.feedbackContainer {
-    display: flex;
-    justify-content: center; 
-    align-items: center;
-    width: auto; height: 100%;
-}
-
 .dialog {
     cursor: pointer;
     transition: 0.3s;
@@ -27,6 +20,15 @@
     font-size: 1rem;
     line-height: 1.5rem;
     white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.feedbackContainer {
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    width: auto; height: 100%;
 }
 
 @media (max-width: 1200px) {

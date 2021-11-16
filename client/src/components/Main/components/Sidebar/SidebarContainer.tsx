@@ -4,12 +4,11 @@ import socket from '../../../../socket'
 import { 
     getUsers, 
     getDialogs, 
-    setCurrentDialog, 
     changePassword, 
     updateSidebarNotification as updateNotification,
     UserType, DialogType, SidebarNotificationType
 } from '../../../../redux/reducers/SidebarReducer'
-import { getMessages } from '../../../../redux/reducers/MainReducer'
+import { setCurrentDialog, getMessages } from '../../../../redux/reducers/MainReducer'
 import { logout } from '../../../../redux/reducers/AuthReducer'
 import { AppStateType } from '../../../../redux/store'
 import Sidebar from './Sidebar'
@@ -70,7 +69,7 @@ const mapStateToProps = (state: AppStateType) => {
         toSearch: state.form.search?.values?.toSearch,
         isFetching: state.sidebar.isFetching,
         dialogs: state.sidebar.dialogs,
-        currentDialog: state.sidebar.currentDialog,
+        currentDialog: state.main.currentDialog,
         users: state.sidebar.users,
         notification: state.sidebar.notification
     }

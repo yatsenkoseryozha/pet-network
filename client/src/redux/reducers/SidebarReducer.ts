@@ -7,7 +7,6 @@ const TOGGLE_SIDEBAR_IS_FETCHING = 'TOGGLE-SIDEBAR-IS-FETCHING'
 const UPDATE_SIDEBAR_NOTIFICATION = 'UPDATE-SIDEBAR-NOTIFICATION'
 const GET_USERS = 'GET-USERS'
 const GET_DIALOGS = 'GET-DIALOGS'
-const SET_CURRENT_DIALOG = 'SET-CURRENT-DIALOG'
 
 export type SidebarNotificationType = {
     type: typeof SUCCESS | typeof ERROR
@@ -34,7 +33,6 @@ const initialState = {
     notification: null as SidebarNotificationType | null,
     users: [] as Array<UserType>,
     dialogs: [] as Array<DialogType>,
-    currentDialog: null as DialogType | null,
 }
 
 export type InitialStateType = typeof initialState
@@ -61,18 +59,13 @@ const sidebarReducer = (state = initialState, action: ActionsTypes): InitialStat
                 ...state,
                 dialogs: [...action.dialogs]
             }
-        case SET_CURRENT_DIALOG:
-            return {
-                ...state,
-                currentDialog: action.dialog
-            }
         default: return state
     }
 }
 
 export default sidebarReducer
 
-type ActionsTypes = GetUsersActionType | GetDialogsActionType | SetCurrentDialogActionType | ToggleSidebarIsFetchingActionType | UpdateSidebarNotificationActionType
+type ActionsTypes = GetUsersActionType | GetDialogsActionType | ToggleSidebarIsFetchingActionType | UpdateSidebarNotificationActionType
 
 type ToggleSidebarIsFetchingActionType = {
     type: typeof TOGGLE_SIDEBAR_IS_FETCHING
@@ -98,12 +91,6 @@ type GetDialogsActionType = {
     dialogs: Array<DialogType>
 }
 export const getDialogsActionCreator = (dialogs: Array<DialogType>): GetDialogsActionType => ({ type: GET_DIALOGS, dialogs })
-
-export type SetCurrentDialogActionType = {
-    type: typeof SET_CURRENT_DIALOG
-    dialog: DialogType | null
-}
-export const setCurrentDialog = (dialog: DialogType | null): SetCurrentDialogActionType => ({ type: SET_CURRENT_DIALOG, dialog })
 
 type ThunkType = ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes>
 

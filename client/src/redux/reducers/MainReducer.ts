@@ -4,10 +4,11 @@ import { mainAPI } from '../../api/mainAPI'
 import { sidebarAPI } from '../../api/sidebarAPI'
 import { AppStateType } from '../store'
 import { ERROR, SUCCESS } from './AuthReducer'
-import { DialogType, setCurrentDialog, SetCurrentDialogActionType, UserType } from './SidebarReducer'
+import { DialogType, UserType } from './SidebarReducer'
 
 const TOGGLE_MAIN_IS_FETCHING = 'TOGGLE-MAIN-IS-FETCHING'
 const UPDATE_MAIN_NOTIFICATION = 'UPDATE-MAIN-NOTIFICATION'
+const SET_CURRENT_DIALOG = 'SET-CURRENT-DIALOG'
 const GET_MESSAGES = 'GET-MESSAGES'
 
 export type MainNotificationType = {
@@ -25,6 +26,7 @@ export type MessageType = {
 let initialState = {
     isFetching: false,
     notification: null as MainNotificationType | null,
+    currentDialog: null as DialogType | null,
     messages: [] as Array<MessageType>
 }
 export type InitialStateType = typeof initialState
@@ -40,6 +42,11 @@ const mainReducer = (state = initialState, action: ActionsTypes): InitialStateTy
             return {
                 ...state,
                 notification: action.notification
+            }
+        case SET_CURRENT_DIALOG:
+            return {
+                ...state,
+                currentDialog: action.dialog
             }
         case GET_MESSAGES:
             return {
@@ -67,6 +74,12 @@ export const updateMainNotification = (notification: MainNotificationType | null
     type: UPDATE_MAIN_NOTIFICATION, notification
 })
 
+export type SetCurrentDialogActionType = {
+    type: typeof SET_CURRENT_DIALOG
+    dialog: DialogType | null
+}
+export const setCurrentDialogActionCreator = (dialog: DialogType | null): SetCurrentDialogActionType => ({ type: SET_CURRENT_DIALOG, dialog })
+
 export type GetMessagesActionType = {
     type: typeof GET_MESSAGES,
     messages: Array<MessageType>
@@ -75,16 +88,15 @@ export const getMessagesActionCreator = (messages: Array<MessageType>): GetMessa
 
 type ThunkType = ThunkAction<Promise<void>, AppStateType, unknown, ActionsTypes>
 
-export const getMessages = (dialog: DialogType): ThunkType => {
+export const setCurrentDialog = (dialog: DialogType | null): ThunkType => {
     return async (dispatch) => {
         try {
-            if (dialog._id) {
+            dispatch(setCurrentDialogActionCreator(dialog))
+            if (dialog?._id) {
                 dispatch(toggleMainIsFetching())
-                let data = await mainAPI.getMessages(dialog._id)
-                dispatch(getMessagesActionCreator(data.messages))
-                dispatch(updateMainNotification(null))
+                await dispatch(getMessages(dialog))
                 dispatch(toggleMainIsFetching())
-            } else dispatch(getMessagesActionCreator([]))
+            } else dispatch(getMessages(null))
         } catch (error: any) {
             console.log(error)
             dispatch(updateMainNotification({
@@ -97,18 +109,33 @@ export const getMessages = (dialog: DialogType): ThunkType => {
     }
 }
 
+export const getMessages = (dialog: DialogType | null): ThunkType => {
+    return async (dispatch) => {
+        try {
+            if (dialog) {
+                let data = await mainAPI.getMessages(dialog._id)
+                dispatch(getMessagesActionCreator(data.messages))
+            } else dispatch(getMessagesActionCreator([]))
+        } catch (error: any) {
+            console.log(error)
+            dispatch(updateMainNotification({
+                type: error.response.data.type,
+                code: error.response.data.code,
+                message: error.response.data.message
+            }))
+        }
+    }
+}
+
 export const sendMessage = (currentDialog: DialogType, text: string): ThunkType => {
     return async (dispatch) => {
         try {
-            dispatch(toggleMainIsFetching())
             if (!currentDialog._id) {
                 currentDialog = await sidebarAPI.createDialog(currentDialog.members)
                 dispatch(setCurrentDialog(currentDialog))
                 dispatch(change('search', 'toSearch', ''))
             }
             await mainAPI.sendMessage(currentDialog, text)
-            dispatch(updateMainNotification(null))
-            dispatch(toggleMainIsFetching())
         } catch (error: any) {
             console.log(error)
             dispatch(updateMainNotification({

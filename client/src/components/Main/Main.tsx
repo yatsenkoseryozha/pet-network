@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Field, InjectedFormProps, reduxForm, reset } from 'redux-form'
-import { Input, Layout, PageHeader, Avatar, Button } from 'antd'
-import { PaperClipOutlined, UserOutlined, LeftOutlined } from '@ant-design/icons';
+import { Input, Layout, PageHeader, Avatar, Button, Spin } from 'antd'
+import { PaperClipOutlined, UserOutlined, LeftOutlined, LoadingOutlined } from '@ant-design/icons';
 import SidebarContainer from './components/Sidebar/SidebarContainer'
 import Messages from './components/Messages'
 import style from './Main.module.css'
@@ -140,13 +140,21 @@ const Main: React.FC<{
                                 }}
                             />
                             <div className={style.messagesContainer}>
-                                <Messages
-                                    currentUser={currentUser}
-                                    currentDialog={currentDialog}
-                                    getMessages={props.getMessages}
-                                    isFetching={isFetching}
-                                    messages={messages}
-                                />
+                                {
+                                    isFetching ? (
+                                        <div className={style.feedbackContainer}>
+                                            <Spin
+                                                size='large'
+                                                indicator={<LoadingOutlined style={{ fontSize: 48, color: 'white' }} spin />}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <Messages
+                                            currentUser={currentUser}
+                                            messages={messages}
+                                        />
+                                    )
+                                }
                             </div>
                             <div className={style.newMessageFormContainer}>
                                 <NewMessageReduxForm

@@ -124,12 +124,12 @@ const Sidebar: React.FC<{
         const DropdownMenu = (
             <Menu>
                 <Menu.Item key='settings' onClick={() => changeSettingsDrawerVisible(true)}>
-                    <Text>
+                    <Text style={{ fontSize: '1rem' }}>
                         <SettingOutlined /> Настройки
                     </Text>
                 </Menu.Item>
                 <Menu.Item key='logout' onClick={props.logout}>
-                    <Text type='danger'>
+                    <Text type='danger' style={{ fontSize: '1rem' }}>
                         <LogoutOutlined /> Выйти
                     </Text>
                 </Menu.Item>
